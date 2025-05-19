@@ -10,6 +10,8 @@ class USpringArmComponent;
 class UHeroCameraComponent;
 class UHeroMovementComponent;
 
+struct FInputActionValue;
+
 UENUM()
 enum class EHeroType : uint8
 {
@@ -33,9 +35,23 @@ public:
 	UFUNCTION(BlueprintPure)
 	EHeroType GetHeroType() const { return HeroType; }
 
+	UFUNCTION(BlueprintPure)
+	bool IsMoveInputBlocked() const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	/** Called for movement input */
+	void Move(const FInputActionValue& Value);
+
+	void MoveReleased();
+
+	/** Called for looking input */
+	void Look(const FInputActionValue& Value);
+
+	virtual void Jump() override;
+	virtual void Landed(const FHitResult& Hit) override;
 
 public:	
 	// Called every frame
@@ -58,4 +74,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USceneComponent* CameraPivot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UPlayerInputData> InputData;
 };
