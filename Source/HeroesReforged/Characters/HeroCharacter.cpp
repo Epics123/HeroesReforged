@@ -7,11 +7,13 @@
 #include "../Data/PlayerInputData.h"
 #include "../HeroesReforgedGameMode.h"
 #include "../HeroManager.h"
+#include "HeroAIController.h"
 
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Engine/InputDelegateBinding.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "Logging/LogMacros.h"
@@ -53,6 +55,19 @@ UHeroMovementComponent* AHeroCharacter::GetHeroMovementComponent() const
 bool AHeroCharacter::IsMoveInputBlocked() const
 {
 	return false; // TODO: Actually check if input is blocked
+}
+
+void AHeroCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.Instigator = GetInstigator();
+	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnInfo.OverrideLevel = GetLevel();
+	SpawnInfo.ObjectFlags |= RF_Transient;	// We never want to save AI controllers into a map
+
+	AIController = GetWorld()->SpawnActor<AHeroAIController>(AHeroAIController::StaticClass(), GetActorLocation(), GetActorRotation(), SpawnInfo);
 }
 
 // Called when the game starts or when spawned
@@ -155,20 +170,66 @@ void AHeroCharacter::Landed(const FHitResult& Hit)
 
 void AHeroCharacter::SwapLeft()
 {
-	AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	if(GameMode)
-	{
-		GameMode->HeroManager->RotateActiveHero(-1);
-		GetWorld()->GetFirstPlayerController()->Possess(GameMode->HeroManager->ActiveHero);
-	}
+	SwapHeroInternal(-1);
 }
 
 void AHeroCharacter::SwapRight()
 {
+	SwapHeroInternal(1);
+}
+
+void AHeroCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
 	AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		GameMode->HeroManager->RotateActiveHero(1);
+		// Possess previous hero with AI controller after we are done possessing the new active hero
+		if(!Cast<AHeroAIController>(NewController))
+		{
+			GameMode->HeroManager->AIPossessPreviousHero();
+			GetHeroMovementComponent()->Velocity = GameMode->HeroManager->GetPrevHeroVelocity();
+			Controller->SetControlRotation(GameMode->HeroManager->GetPrevCameraRotation());
+		}
+	}
+}
+
+void AHeroCharacter::PawnClientRestart()
+{
+	APlayerController* PC = Cast<APlayerController>(Controller);
+	if (PC && PC->IsLocalController())
+	{
+		// Handle camera possession
+		if (PC->bAutoManageActiveCameraTarget)
+		{
+			PC->AutoManageActiveCameraTarget(this);
+		}
+
+		// Set up player input component, if there isn't one already.
+		if (InputComponent == nullptr)
+		{
+			InputComponent = CreatePlayerInputComponent();
+			if (InputComponent)
+			{
+				SetupPlayerInputComponent(InputComponent);
+				InputComponent->RegisterComponent();
+				if (UInputDelegateBinding::SupportsInputDelegate(GetClass()))
+				{
+					InputComponent->bBlockInput = bBlockInput;
+					UInputDelegateBinding::BindInputDelegatesWithSubojects(this, InputComponent);
+				}
+			}
+		}
+	}
+}
+
+void AHeroCharacter::SwapHeroInternal(int32 Direction)
+{
+	AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->HeroManager->RotateActiveHero(Direction);
 		GetWorld()->GetFirstPlayerController()->Possess(GameMode->HeroManager->ActiveHero);
 	}
 }

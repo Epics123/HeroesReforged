@@ -124,6 +124,12 @@ void UHeroMovementComponent::PhysWalking(float DeltaTime, int32 Iterations)
 		return;
 	}
 
+	if(!IsMovingOnGround())
+	{
+		SetMovementMode(MOVE_Falling);
+		return;
+	}
+
 	Super::PhysWalking(DeltaTime, Iterations);
 }
 

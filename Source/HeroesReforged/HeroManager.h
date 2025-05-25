@@ -31,7 +31,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetActiveHero(int32 Index);
 
+	UFUNCTION(BlueprintPure)
+	AHeroCharacter* GetPreviousHero() const
+	{
+		return PreviousHero;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void AIPossessPreviousHero();
+
 	void SetupTeam(class AController* Controller);
+
+	FVector GetPrevHeroVelocity() const { return PrevHeroVelocity; }
+	FRotator GetPrevCameraRotation() const { return PrevCameraRotation; }
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Heroes")
@@ -42,4 +54,9 @@ public:
 
 private:
 	TArray<AHeroCharacter*, TFixedAllocator<3>> Heroes;
+
+	// The previous ActiveHero
+	AHeroCharacter* PreviousHero = nullptr;
+	FVector PrevHeroVelocity;
+	FRotator PrevCameraRotation;
 };

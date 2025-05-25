@@ -9,6 +9,7 @@
 class USpringArmComponent;
 class UHeroCameraComponent;
 class UHeroMovementComponent;
+class AHeroAIController;
 
 struct FInputActionValue;
 
@@ -38,7 +39,11 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsMoveInputBlocked() const;
 
+	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
 protected:
+	virtual void PostInitializeComponents() override;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -56,6 +61,9 @@ protected:
 	void SwapLeft();
 	void SwapRight();
 
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void PawnClientRestart() override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -63,9 +71,15 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+private:
+	void SwapHeroInternal(int32 Direction);
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EHeroType HeroType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<AHeroAIController> AIController;
 
 private:
 	/** Camera boom positioning the camera behind the character */
