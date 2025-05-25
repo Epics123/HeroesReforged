@@ -36,4 +36,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Actions)
 	UInputAction* LookAction;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Actions)
+	UInputAction* SwapLeftAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Actions)
+	UInputAction* SwapRightAction;
 };

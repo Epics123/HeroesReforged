@@ -5,11 +5,14 @@
 #include "../Components/HeroMovementComponent.h"
 #include "../Components/HeroCameraComponent.h"
 #include "../Data/PlayerInputData.h"
+#include "../HeroesReforgedGameMode.h"
+#include "../HeroManager.h"
 
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "Logging/LogMacros.h"
 
@@ -150,6 +153,26 @@ void AHeroCharacter::Landed(const FHitResult& Hit)
 	GetHeroMovementComponent()->ResetAirDeceleration();
 }
 
+void AHeroCharacter::SwapLeft()
+{
+	AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(GameMode)
+	{
+		GameMode->HeroManager->RotateActiveHero(-1);
+		GetWorld()->GetFirstPlayerController()->Possess(GameMode->HeroManager->ActiveHero);
+	}
+}
+
+void AHeroCharacter::SwapRight()
+{
+	AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->HeroManager->RotateActiveHero(1);
+		GetWorld()->GetFirstPlayerController()->Possess(GameMode->HeroManager->ActiveHero);
+	}
+}
+
 // Called every frame
 void AHeroCharacter::Tick(float DeltaTime)
 {
@@ -177,6 +200,9 @@ void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 			// Looking
 			EnhancedInputComponent->BindAction(InputData->LookAction, ETriggerEvent::Triggered, this, &AHeroCharacter::Look);
+
+			EnhancedInputComponent->BindAction(InputData->SwapLeftAction, ETriggerEvent::Triggered, this, &AHeroCharacter::SwapLeft);
+			EnhancedInputComponent->BindAction(InputData->SwapRightAction, ETriggerEvent::Triggered, this, &AHeroCharacter::SwapRight);
 		}
 	}
 	else

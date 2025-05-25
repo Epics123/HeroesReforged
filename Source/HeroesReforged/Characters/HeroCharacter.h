@@ -53,6 +53,9 @@ protected:
 	virtual void Jump() override;
 	virtual void Landed(const FHitResult& Hit) override;
 
+	void SwapLeft();
+	void SwapRight();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
