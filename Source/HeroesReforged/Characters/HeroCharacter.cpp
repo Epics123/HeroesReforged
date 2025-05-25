@@ -190,7 +190,6 @@ void AHeroCharacter::PossessedBy(AController* NewController)
 		{
 			GameMode->HeroManager->AIPossessPreviousHero();
 			GetHeroMovementComponent()->Velocity = GameMode->HeroManager->GetPrevHeroVelocity();
-			Controller->SetControlRotation(GameMode->HeroManager->GetPrevCameraRotation());
 		}
 	}
 }
@@ -231,6 +230,10 @@ void AHeroCharacter::SwapHeroInternal(int32 Direction)
 	{
 		GameMode->HeroManager->RotateActiveHero(Direction);
 		GetWorld()->GetFirstPlayerController()->Possess(GameMode->HeroManager->ActiveHero);
+
+		AHeroCharacter* PrevHero = GameMode->HeroManager->GetPreviousHero();
+		PrevHero->GetHeroMovementComponent()->StopMovementImmediately();
+		PrevHero->GetHeroMovementComponent()->Velocity = FVector::ZeroVector;
 	}
 }
 

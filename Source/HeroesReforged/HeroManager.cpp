@@ -49,7 +49,6 @@ void UHeroManager::SetActiveHero(int32 Index)
 	if(DesiredHero != ActiveHero)
 	{
 		PrevHeroVelocity = ActiveHero->GetHeroMovementComponent()->Velocity;
-		PrevCameraRotation = ActiveHero->GetLocalViewingPlayerController()->RotationInput;
 
 		const FVector ActiveHeroLoc = ActiveHero->GetActorLocation();
 		const FRotator ActiveHeroRot = ActiveHero->GetActorRotation();
@@ -58,7 +57,6 @@ void UHeroManager::SetActiveHero(int32 Index)
 		const FRotator DesiredHeroRot = DesiredHero->GetActorRotation();
 
 		DesiredHero->SetActorLocationAndRotation(ActiveHeroLoc, ActiveHeroRot, false, nullptr, ETeleportType::TeleportPhysics);
-
 		ActiveHero->SetActorLocationAndRotation(DesiredHeroLoc, DesiredHeroRot, false, nullptr, ETeleportType::TeleportPhysics);
 
 		PreviousHero = ActiveHero;

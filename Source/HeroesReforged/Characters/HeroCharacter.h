@@ -39,8 +39,6 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsMoveInputBlocked() const;
 
-	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-
 protected:
 	virtual void PostInitializeComponents() override;
 

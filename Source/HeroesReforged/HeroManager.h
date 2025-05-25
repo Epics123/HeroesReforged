@@ -43,7 +43,6 @@ public:
 	void SetupTeam(class AController* Controller);
 
 	FVector GetPrevHeroVelocity() const { return PrevHeroVelocity; }
-	FRotator GetPrevCameraRotation() const { return PrevCameraRotation; }
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Heroes")
@@ -58,5 +57,4 @@ private:
 	// The previous ActiveHero
 	AHeroCharacter* PreviousHero = nullptr;
 	FVector PrevHeroVelocity;
-	FRotator PrevCameraRotation;
 };

@@ -16,4 +16,6 @@ class HEROESREFORGED_API AHeroPlayerController : public APlayerController
 
 public:
 	AHeroPlayerController();
+
+	virtual void OnPossess(APawn* InPawn) override;
 };
