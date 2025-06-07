@@ -5,8 +5,6 @@
 #include "../Characters/HeroCharacter.h"
 #include "../Components/HeroMovementComponent.h"
 
-UE_DISABLE_OPTIMIZATION
-
 UHeroAnimInstance::UHeroAnimInstance()
 {
 
@@ -52,11 +50,5 @@ void UHeroAnimInstance::TryGetHero()
 	if (PawnOwner)
 	{
 		Hero = Cast<AHeroCharacter>(PawnOwner);
-	}
-
-	USkeletalMeshComponent* OwnerComponent = GetSkelMeshComponent();
-	if (AActor* OwnerActor = OwnerComponent->GetOwner())
-	{
-		//return Cast<APawn>(OwnerActor);
 	}
 }
