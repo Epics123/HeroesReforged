@@ -5,9 +5,30 @@
 #include "../Characters/HeroCharacter.h"
 #include "../Components/HeroMovementComponent.h"
 
+UE_DISABLE_OPTIMIZATION
+
 UHeroAnimInstance::UHeroAnimInstance()
 {
 
+}
+
+void UHeroAnimInstance::NativeBeginPlay()
+{
+	TryGetHero();
+
+	Super::NativeBeginPlay();
+}
+
+void UHeroAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+{
+	if(!Hero)
+	{
+		TryGetHero();
+	}
+	
+	CalculateSpeedAndDirection();
+
+	Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
 }
 
 void UHeroAnimInstance::CalculateSpeedAndDirection()
@@ -22,5 +43,20 @@ void UHeroAnimInstance::CalculateSpeedAndDirection()
 		const float LeanValue = LeanCurve->GetFloatValue(Speed);
 		
 		Direction = FMath::Clamp((VelocityDir | Hero->GetActorRightVector()) * LeanValue, -1.0f, 1.0f);
+	}
+}
+
+void UHeroAnimInstance::TryGetHero()
+{
+	APawn* PawnOwner = TryGetPawnOwner();
+	if (PawnOwner)
+	{
+		Hero = Cast<AHeroCharacter>(PawnOwner);
+	}
+
+	USkeletalMeshComponent* OwnerComponent = GetSkelMeshComponent();
+	if (AActor* OwnerActor = OwnerComponent->GetOwner())
+	{
+		//return Cast<APawn>(OwnerActor);
 	}
 }

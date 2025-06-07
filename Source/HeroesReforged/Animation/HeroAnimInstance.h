@@ -19,6 +19,14 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void CalculateSpeedAndDirection();
+
+	UFUNCTION(BlueprintCallable)
+	void TryGetHero();
+
+protected:
+	void NativeBeginPlay() override;
+
+	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds);
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General")
@@ -29,6 +37,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float Direction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float IdleTransitionThreshold = 0.1f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	TObjectPtr<UCurveFloat> LeanCurve;
