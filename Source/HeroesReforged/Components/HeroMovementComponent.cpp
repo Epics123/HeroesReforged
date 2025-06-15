@@ -323,8 +323,7 @@ void UHeroMovementComponent::ApplyVelocityBraking(float DeltaTime, float Frictio
 
 void UHeroMovementComponent::UpdateOwnerRotation(const FVector& SurfaceNormal, float DeltaTime)
 {
-	const APlayerController* Controller = Cast<APlayerController>(CharacterOwner->GetController());
-	if (!Controller)
+	if (!CharacterOwner->GetController())
 	{
 		return;
 	}
@@ -337,11 +336,6 @@ void UHeroMovementComponent::UpdateOwnerRotation(const FVector& SurfaceNormal, f
 	SmoothTargetOrientation.Normalize();
 
 	bool bSkipRotateToVelocity = false;
-	//const AHeroCharacter* Character = Cast<AHeroCharacter>(CharacterOwner);
-	//if (Character && Character->IsAiming())
-	//{
-	//	bSkipRotateToVelocity = true; // Skip rotating towards velocity if we are aiming a weapon
-	//}
 
 	// Rotate towards velocity
 	const FVector TangentVelocity = Velocity - (Velocity | SurfaceNormal) * SurfaceNormal;

@@ -9,6 +9,7 @@
 class USpringArmComponent;
 class UHeroCameraComponent;
 class UHeroMovementComponent;
+class UHeroAIComponent;
 class AHeroAIController;
 
 struct FInputActionValue;
@@ -38,6 +39,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsMoveInputBlocked() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetAIComponentEnabled(bool bEnable);
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -78,6 +82,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<AHeroAIController> AIController;
+
+	UPROPERTY(EditAnywhere, Category = AI)
+	TObjectPtr<USceneComponent> RightAITarget;
+	UPROPERTY(EditAnywhere, Category = AI)
+	TObjectPtr<USceneComponent> LeftAITarget;
+
+	UPROPERTY(VisibleAnywhere, Category = AI)
+	TObjectPtr<UHeroAIComponent> HeroAIComponent;
 
 private:
 	/** Camera boom positioning the camera behind the character */

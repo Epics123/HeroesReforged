@@ -40,9 +40,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AIPossessPreviousHero();
 
+	UFUNCTION(BlueprintPure)
+	int32 GetHeroIndex(AHeroCharacter* Hero) const
+	{
+		return Heroes.IndexOfByKey(ActiveHero);
+	}
+
 	void SetupTeam(class AController* Controller);
 
 	FVector GetPrevHeroVelocity() const { return PrevHeroVelocity; }
+
+	void UpdateHeroMaxSpeeds();
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Heroes")

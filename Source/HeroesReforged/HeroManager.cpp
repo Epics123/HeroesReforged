@@ -61,6 +61,12 @@ void UHeroManager::SetActiveHero(int32 Index)
 
 		PreviousHero = ActiveHero;
 		ActiveHero = DesiredHero;
+
+		// We do not want the AI component to tick if we are the active character.
+		ActiveHero->SetAIComponentEnabled(false);
+		PreviousHero->SetAIComponentEnabled(true);
+
+		UpdateHeroMaxSpeeds();
 	}
 }
 
@@ -81,6 +87,7 @@ void UHeroManager::SetupTeam(AController* Controller)
 	}
 
 	Heroes.Insert(ActiveHero, 0);
+	ActiveHero->SetAIComponentEnabled(false);
 
 	const FTransform StartTransform = ActiveHero->GetActorTransform();
 	const FVector SpawnRight = ActiveHero->GetActorRightVector();
@@ -100,7 +107,28 @@ void UHeroManager::SetupTeam(AController* Controller)
 		if(Hero->AIController)
 		{
 			Hero->AIController->Possess(Hero);
+			Hero->SetAIComponentEnabled(true);
 		}
 		Heroes.Insert(Hero, i);
+	}
+}
+
+void UHeroManager::UpdateHeroMaxSpeeds()
+{
+	for(AHeroCharacter* Hero : Heroes)
+	{
+		UHeroMovementComponent* MovementComponent = Hero->GetHeroMovementComponent();
+		if(Hero != ActiveHero)
+		{
+			MovementComponent->MaxWalkSpeed = ActiveHero->GetHeroMovementComponent()->DefaultMaxSpeed;
+		}
+		else
+		{
+			// Reset active hero max speed if it has changed
+			if(MovementComponent->MaxWalkSpeed != MovementComponent->DefaultMaxSpeed)
+			{
+				MovementComponent->MaxWalkSpeed = MovementComponent->DefaultMaxSpeed;
+			}
+		}
 	}
 }

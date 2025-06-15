@@ -14,4 +14,6 @@ class HEROESREFORGED_API AHeroAIController : public AAIController
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) {};
 };

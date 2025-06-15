@@ -4,6 +4,7 @@
 #include "HeroCharacter.h"
 #include "../Components/HeroMovementComponent.h"
 #include "../Components/HeroCameraComponent.h"
+#include "../Components/HeroAIComponent.h"
 #include "../Data/PlayerInputData.h"
 #include "../HeroesReforgedGameMode.h"
 #include "../HeroManager.h"
@@ -45,6 +46,16 @@ AHeroCharacter::AHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	FollowCamera = CreateDefaultSubobject<UHeroCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	HeroAIComponent = CreateDefaultSubobject<UHeroAIComponent>(TEXT("HeroAIComponent"));
+
+	if(HeroAIComponent)
+	{
+		RightAITarget = CreateDefaultSubobject<USceneComponent>(TEXT("RightAITarget"));
+		RightAITarget->SetupAttachment(RootComponent);
+		LeftAITarget = CreateDefaultSubobject<USceneComponent>(TEXT("LeftAITarget"));
+		LeftAITarget->SetupAttachment(RootComponent);
+	}
 }
 
 UHeroMovementComponent* AHeroCharacter::GetHeroMovementComponent() const
@@ -55,6 +66,16 @@ UHeroMovementComponent* AHeroCharacter::GetHeroMovementComponent() const
 bool AHeroCharacter::IsMoveInputBlocked() const
 {
 	return false; // TODO: Actually check if input is blocked
+}
+
+void AHeroCharacter::SetAIComponentEnabled(bool bEnable)
+{
+	if(!HeroAIComponent)
+	{
+		return;
+	}
+
+	HeroAIComponent->SetActive(bEnable);
 }
 
 void AHeroCharacter::PostInitializeComponents()
