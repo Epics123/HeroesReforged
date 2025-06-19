@@ -14,6 +14,8 @@ class AHeroCharacter;
 
 DEFINE_LOG_CATEGORY_STATIC(LogHeroManager, Display, All);
 
+DECLARE_MULTICAST_DELEGATE(FOnHeroTeamSetup);
+
 /**
  * 
  */
@@ -46,6 +48,17 @@ public:
 		return Heroes.IndexOfByKey(ActiveHero);
 	}
 
+	UFUNCTION(BlueprintPure)
+	bool IsActiveHero(AHeroCharacter* Hero)
+	{
+		if(Hero)
+		{
+			return ActiveHero == Hero;
+		}
+
+		return false;
+	}
+
 	void SetupTeam(class AController* Controller);
 
 	FVector GetPrevHeroVelocity() const { return PrevHeroVelocity; }
@@ -58,6 +71,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Heroes")
 	TObjectPtr<UHeroTeamData> TeamData;
+
+	FOnHeroTeamSetup OnHeroTeamSetup;
 
 private:
 	TArray<AHeroCharacter*, TFixedAllocator<3>> Heroes;

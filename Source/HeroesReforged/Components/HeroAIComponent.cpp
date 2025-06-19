@@ -101,7 +101,8 @@ void UHeroAIComponent::MoveToTarget(float DeltaTime)
 
 			if(!bTargetMoving && bCloseEnough)
 			{
-				OwnerHero->SetActorRotation(TargetCharacter->GetActorRotation());
+				const FRotator TargetRotation = FMath::RInterpTo(OwnerHero->GetActorRotation(), TargetCharacter->GetActorRotation(), DeltaTime, 5.0f);
+				OwnerHero->SetActorRotation(TargetRotation);
 				return;
 			}
 

@@ -64,10 +64,15 @@ float UHeroMovementComponent::GetApexProximity(float ApexHeight, float JumpStart
 	return 0.0f;
 }
 
+void UHeroMovementComponent::CacheMovementDefaults()
+{
+	DefaultMaxSpeed = MaxWalkSpeed;
+	DefaultGroundAcceleration = MaxAcceleration;
+}
+
 void UHeroMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	DefaultMaxSpeed = MaxWalkSpeed;
 }
 
 void UHeroMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -422,7 +427,7 @@ float UHeroMovementComponent::VisualizeMovement() const
 			GetActorLocation() + Acceleration.GetSafeNormal(UE_SMALL_NUMBER) * CurrentAccelAsPercentOfMaxAccel * MaxAccelerationLineLength,
 			1.f, DebugColor, false, -1.f, (uint8)'\000', 1.f);
 
-		FString DebugText = FString::Printf(TEXT("Acceleration: %s"), *Acceleration.ToCompactString());
+		FString DebugText = FString::Printf(TEXT("Acceleration Vector: %s, Max Acceleration: %2f"), *Acceleration.ToCompactString(), CurrentMaxAccel);
 		DrawDebugString(GetWorld(), DebugLocation, DebugText, nullptr, DebugColor, 0.f, true);
 	}
 

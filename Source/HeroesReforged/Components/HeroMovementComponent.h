@@ -45,6 +45,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetApexProximity(float ApexHeight, float JumpStartHeight) const;
 
+	void CacheMovementDefaults();
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -148,8 +150,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Custom Movement | Flying")
 	bool bFlightInputHeld = false;
 
-	UPROPERTY()
 	float DefaultMaxSpeed;
+	float DefaultGroundAcceleration;
 
 	float CurrentFlightTime;
 

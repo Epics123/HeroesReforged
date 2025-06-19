@@ -18,6 +18,9 @@ AHeroesReforgedGameMode::AHeroesReforgedGameMode(const FObjectInitializer& Objec
 void AHeroesReforgedGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	HeroManager->OnHeroTeamSetup.Broadcast();
+
+	HeroManager->UpdateHeroMaxSpeeds();
 }
 
 void AHeroesReforgedGameMode::RestartPlayerAtPlayerStart(AController* NewPlayer, AActor* StartSpot)

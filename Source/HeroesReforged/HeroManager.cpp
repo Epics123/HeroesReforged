@@ -111,6 +111,14 @@ void UHeroManager::SetupTeam(AController* Controller)
 		}
 		Heroes.Insert(Hero, i);
 	}
+
+	for(AHeroCharacter* Hero : Heroes)
+	{
+		if(Hero)
+		{
+			OnHeroTeamSetup.AddUObject(Hero->GetHeroMovementComponent(), &UHeroMovementComponent::CacheMovementDefaults);
+		}
+	}
 }
 
 void UHeroManager::UpdateHeroMaxSpeeds()
@@ -121,6 +129,7 @@ void UHeroManager::UpdateHeroMaxSpeeds()
 		if(Hero != ActiveHero)
 		{
 			MovementComponent->MaxWalkSpeed = ActiveHero->GetHeroMovementComponent()->DefaultMaxSpeed;
+			MovementComponent->MaxAcceleration = ActiveHero->GetHeroMovementComponent()->MaxAcceleration;
 		}
 		else
 		{
@@ -128,6 +137,7 @@ void UHeroManager::UpdateHeroMaxSpeeds()
 			if(MovementComponent->MaxWalkSpeed != MovementComponent->DefaultMaxSpeed)
 			{
 				MovementComponent->MaxWalkSpeed = MovementComponent->DefaultMaxSpeed;
+				MovementComponent->MaxAcceleration = MovementComponent->DefaultGroundAcceleration;
 			}
 		}
 	}
