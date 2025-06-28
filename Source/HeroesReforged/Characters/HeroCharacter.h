@@ -11,6 +11,7 @@ class UHeroCameraComponent;
 class UHeroMovementComponent;
 class UHeroAIComponent;
 class AHeroAIController;
+class UNiagaraComponent;
 
 struct FInputActionValue;
 
@@ -42,6 +43,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetAIComponentEnabled(bool bEnable);
+
+	UFUNCTION(BlueprintCallable)
+	void ShowJumpball();
+
+	UFUNCTION(BlueprintCallable)
+	void HideJumpball();
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -100,7 +107,13 @@ private:
 	TObjectPtr<UHeroCameraComponent> FollowCamera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	USceneComponent* CameraPivot;
+	TObjectPtr<USceneComponent> CameraPivot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMeshComponent> JumpballMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UNiagaraComponent> JumpballFX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPlayerInputData> InputData;

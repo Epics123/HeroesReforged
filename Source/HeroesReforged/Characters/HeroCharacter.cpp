@@ -16,6 +16,7 @@
 #include "InputActionValue.h"
 #include "Engine/InputDelegateBinding.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraComponent.h"
 
 #include "Logging/LogMacros.h"
 
@@ -41,6 +42,16 @@ AHeroCharacter::AHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	CameraBoom->TargetArmLength = 500.0f; // The camera follows at this distance behind the character
 	CameraBoom->SocketOffset = FVector(0.0f, 0.0f, -100);
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+
+	JumpballMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("JumpballMesh"));
+	JumpballMesh->SetupAttachment(RootComponent);
+
+	JumpballFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("JumpballFX"));
+	JumpballFX->SetupAttachment(JumpballMesh);
+
+	JumpballFX->SetPaused(true);
+	JumpballFX->SetVisibility(false);
+	JumpballMesh->SetVisibility(false, true);
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UHeroCameraComponent>(TEXT("FollowCamera"));
@@ -76,6 +87,28 @@ void AHeroCharacter::SetAIComponentEnabled(bool bEnable)
 	}
 
 	HeroAIComponent->SetActive(bEnable);
+}
+
+void AHeroCharacter::ShowJumpball()
+{
+	if (JumpballMesh && JumpballFX)
+	{
+		GetMesh()->SetVisibility(false);
+
+		JumpballFX->SetPaused(false);
+		JumpballMesh->SetVisibility(true, true);
+	}
+}
+
+void AHeroCharacter::HideJumpball()
+{
+	if(JumpballMesh && JumpballFX)
+	{
+		GetMesh()->SetVisibility(true);
+
+		JumpballFX->SetPaused(true);
+		JumpballMesh->SetVisibility(false, true);
+	}
 }
 
 void AHeroCharacter::PostInitializeComponents()
@@ -179,12 +212,14 @@ void AHeroCharacter::Look(const FInputActionValue& Value)
 void AHeroCharacter::Jump()
 {
 	GetHeroMovementComponent()->bNotifyApex = true;
+	ShowJumpball();
 	Super::Jump();
 }
 
 void AHeroCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
+	HideJumpball();
 	GetHeroMovementComponent()->bNotifyApex = false;
 	GetHeroMovementComponent()->ResetAirDeceleration();
 }
