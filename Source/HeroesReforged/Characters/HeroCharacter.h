@@ -50,6 +50,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HideJumpball();
 
+	UFUNCTION(BlueprintPure)
+	float GetJumpballPitchDuringJump(float ApexProximity, float MinDownwardRotation, float MaxUpwardRotation);
+
 protected:
 	virtual void PostInitializeComponents() override;
 
@@ -108,6 +111,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> CameraPivot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<USceneComponent> JumpballPivot;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<USkeletalMeshComponent> JumpballMesh;

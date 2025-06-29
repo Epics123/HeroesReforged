@@ -43,8 +43,11 @@ AHeroCharacter::AHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	CameraBoom->SocketOffset = FVector(0.0f, 0.0f, -100);
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
+	JumpballPivot = CreateDefaultSubobject<USceneComponent>(TEXT("JumpballPivot"));
+	JumpballPivot->SetupAttachment(RootComponent);
+
 	JumpballMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("JumpballMesh"));
-	JumpballMesh->SetupAttachment(RootComponent);
+	JumpballMesh->SetupAttachment(JumpballPivot);
 
 	JumpballFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("JumpballFX"));
 	JumpballFX->SetupAttachment(JumpballMesh);
@@ -109,6 +112,29 @@ void AHeroCharacter::HideJumpball()
 		JumpballFX->SetPaused(true);
 		JumpballMesh->SetVisibility(false, true);
 	}
+}
+
+float AHeroCharacter::GetJumpballPitchDuringJump(float ApexProximity, float MinDownwardRotation, float MaxUpwardRotation)
+{
+	UHeroMovementComponent* MovementComponent = GetHeroMovementComponent();
+	if(MovementComponent)
+	{
+		float TargetRotationAngle = 0.0f;
+
+		const float VerticalVelocity = MovementComponent->RotateWorldToGravity(MovementComponent->Velocity).Z;
+		if (VerticalVelocity > 0.0f)
+		{
+			TargetRotationAngle = FMath::Lerp(MaxUpwardRotation, 0.0f, ApexProximity);
+		}
+		else
+		{
+			TargetRotationAngle = FMath::Lerp(0.0f, MinDownwardRotation, 1.0f - ApexProximity);
+		}
+
+		return TargetRotationAngle;
+	}
+
+	return 0.0f;
 }
 
 void AHeroCharacter::PostInitializeComponents()
