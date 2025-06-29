@@ -5,9 +5,17 @@
 #include "Characters/HeroCharacter.h"
 #include "Characters/HeroAIController.h"
 #include "Components/HeroMovementComponent.h"
+#include "Components/HeroAIComponent.h"
 
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
+
+UHeroManager::UHeroManager(const FObjectInitializer& ObjectInitializer)
+:Super(ObjectInitializer)
+{
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = true;
+}
 
 void UHeroManager::RotateActiveHero(int32 Direction)
 {
@@ -139,6 +147,21 @@ void UHeroManager::UpdateHeroMaxSpeeds()
 				MovementComponent->MaxWalkSpeed = MovementComponent->DefaultMaxSpeed;
 				MovementComponent->MaxAcceleration = MovementComponent->DefaultGroundAcceleration;
 			}
+		}
+	}
+}
+
+void UHeroManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// Move hero AI characters
+	for(AHeroCharacter* Hero : Heroes)
+	{
+		UHeroAIComponent* AIComponent = Hero->HeroAIComponent;
+		if(AIComponent && AIComponent->IsAIEnabled())
+		{
+			AIComponent->MoveToTarget(DeltaTime);
 		}
 	}
 }

@@ -10,6 +10,13 @@ class AHeroesReforgedGameMode;
 class UHeroManager;
 class AHeroCharacter;
 
+UENUM(BlueprintType)
+enum class EHeroAIComponentState : uint8
+{
+	Active,
+	Inactive
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HEROESREFORGED_API UHeroAIComponent : public UActorComponent
 {
@@ -18,6 +25,12 @@ class HEROESREFORGED_API UHeroAIComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UHeroAIComponent();
+
+	UFUNCTION(BlueprintCallable)
+	void SetAIComponentState(EHeroAIComponentState NewState) { HeroAIState = NewState; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsAIEnabled() const { return HeroAIState == EHeroAIComponentState::Active; }
 
 	/* 
 	* Gets the index into AITargetLocations that a given character will try to move towards, based on the current ActiveHero
@@ -34,10 +47,6 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
@@ -67,4 +76,6 @@ private:
 	AHeroCharacter* OwnerHero;
 
 	float CurrentInputScale = 1.0f;
+
+	EHeroAIComponentState HeroAIState = EHeroAIComponentState::Active;
 };

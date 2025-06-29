@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Components/ActorComponent.h"
 
 #include "Data/HeroTeamData.h"
 
@@ -20,11 +21,13 @@ DECLARE_MULTICAST_DELEGATE(FOnHeroTeamSetup);
  * 
  */
 UCLASS(Blueprintable)
-class HEROESREFORGED_API UHeroManager : public UObject
+class HEROESREFORGED_API UHeroManager : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
+	UHeroManager(const FObjectInitializer& ObjectInitializer);
+
 	/* Changes the active hero (-1 = Left, 1 = Right). A Direction of 0 is treated as Right. Does not actually change the underlying Heroes array. */
 	UFUNCTION(BlueprintCallable)
 	void RotateActiveHero(int32 Direction);
@@ -64,6 +67,9 @@ public:
 	FVector GetPrevHeroVelocity() const { return PrevHeroVelocity; }
 
 	void UpdateHeroMaxSpeeds();
+
+protected:
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Heroes")

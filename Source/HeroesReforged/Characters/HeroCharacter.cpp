@@ -89,7 +89,9 @@ void AHeroCharacter::SetAIComponentEnabled(bool bEnable)
 		return;
 	}
 
-	HeroAIComponent->SetActive(bEnable);
+	EHeroAIComponentState AIState = bEnable ? EHeroAIComponentState::Active : EHeroAIComponentState::Inactive;
+
+	HeroAIComponent->SetAIComponentState(AIState);
 }
 
 void AHeroCharacter::ShowJumpball()

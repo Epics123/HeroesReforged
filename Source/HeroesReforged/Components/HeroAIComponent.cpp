@@ -24,7 +24,7 @@ TAutoConsoleVariable<int32> CVar_DebugAIAccpetanceRadius(
 // Sets default values for this component's properties
 UHeroAIComponent::UHeroAIComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 
 	OwnerHero = Cast<AHeroCharacter>(GetOwner());
@@ -159,13 +159,3 @@ void UHeroAIComponent::BeginPlay()
 
 	Super::BeginPlay();
 }
-
-
-// Called every frame
-void UHeroAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	MoveToTarget(DeltaTime);
-}
-

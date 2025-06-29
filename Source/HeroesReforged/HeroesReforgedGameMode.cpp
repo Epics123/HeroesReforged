@@ -12,7 +12,7 @@ UE_DISABLE_OPTIMIZATION
 AHeroesReforgedGameMode::AHeroesReforgedGameMode(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
-
+	
 }
 
 void AHeroesReforgedGameMode::BeginPlay()
