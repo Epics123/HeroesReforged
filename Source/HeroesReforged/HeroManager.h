@@ -62,6 +62,9 @@ public:
 		return false;
 	}
 
+	UFUNCTION(BlueprintCallable)
+	void OnAcitveHeroJumped();
+
 	void SetupTeam(class AController* Controller);
 
 	FVector GetPrevHeroVelocity() const { return PrevHeroVelocity; }

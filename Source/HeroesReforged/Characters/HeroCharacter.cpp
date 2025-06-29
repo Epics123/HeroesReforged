@@ -242,6 +242,12 @@ void AHeroCharacter::Jump()
 	GetHeroMovementComponent()->bNotifyApex = true;
 	ShowJumpball();
 	Super::Jump();
+
+	AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode && GameMode->HeroManager->IsActiveHero(this))
+	{
+		GameMode->HeroManager->OnAcitveHeroJumped();
+	}
 }
 
 void AHeroCharacter::Landed(const FHitResult& Hit)

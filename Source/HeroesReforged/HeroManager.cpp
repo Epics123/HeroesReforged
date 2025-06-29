@@ -86,6 +86,17 @@ void UHeroManager::AIPossessPreviousHero()
 	}
 }
 
+void UHeroManager::OnAcitveHeroJumped()
+{
+	for (AHeroCharacter* Hero : Heroes)
+	{
+		if(Hero != ActiveHero)
+		{
+			Hero->Jump();
+		}
+	}
+}
+
 void UHeroManager::SetupTeam(AController* Controller)
 {
 	if(!TeamData)

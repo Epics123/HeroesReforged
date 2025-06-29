@@ -53,6 +53,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetJumpballPitchDuringJump(float ApexProximity, float MinDownwardRotation, float MaxUpwardRotation);
 
+	virtual void Jump() override;
+
 protected:
 	virtual void PostInitializeComponents() override;
 
@@ -67,7 +69,6 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-	virtual void Jump() override;
 	virtual void Landed(const FHitResult& Hit) override;
 
 	void SwapLeft();
