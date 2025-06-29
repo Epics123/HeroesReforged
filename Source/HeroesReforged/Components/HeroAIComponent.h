@@ -68,6 +68,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
 	float TeleportThreshold = 2000.0f;
 
+	// Move input will be ignored if the dot product of the change in input direction is below this threshold 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
+	float OverCorrectionThreshold = -0.8f;
+
 private:
 	AHeroesReforgedGameMode* GameMode;
 	UHeroManager* HeroManager;
@@ -76,6 +80,8 @@ private:
 	AHeroCharacter* OwnerHero;
 
 	float CurrentInputScale = 1.0f;
+
+	FVector MoveDirection = FVector::ZeroVector;
 
 	EHeroAIComponentState HeroAIState = EHeroAIComponentState::Active;
 };

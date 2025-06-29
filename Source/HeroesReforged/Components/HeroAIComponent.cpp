@@ -87,6 +87,8 @@ void UHeroAIComponent::MoveToTarget(float DeltaTime)
 		AHeroCharacter* TargetCharacter = HeroManager->ActiveHero;
 		if(TargetCharacter && OwnerHero)
 		{
+			const FVector LastMoveDirection = MoveDirection;
+
 			int32 LocationIndex = GetTargetLocationIndexFromHero(TargetCharacter, OwnerHero);
 			
 			const FVector TargetLocation = TargetCharacter->HeroAIComponent->AITargetLocations[LocationIndex]->GetComponentLocation();
@@ -95,14 +97,18 @@ void UHeroAIComponent::MoveToTarget(float DeltaTime)
 			const FVector ToTarget = TargetLocation - CurrentLocation;
 
 			const bool bTargetMoving = IsTargetMoving(TargetCharacter);
-			const bool bCloseEnough = ToTarget.SizeSquared() < FMath::Square(AcceptanceRadius);
+			const bool bCloseEnough = ToTarget.SizeSquared() < FMath::Square(TargetCharacter->HeroAIComponent->AcceptanceRadius);
 			const bool bCatchUp = ToTarget.SizeSquared() > FMath::Square(TargetCharacter->HeroAIComponent->CatchUpThreshold);
 			const bool bShouldTeleport = ToTarget.SizeSquared() > FMath::Square(TeleportThreshold) && !bCloseEnough;
 
-			if(!bTargetMoving && bCloseEnough)
+			if(bCloseEnough)
 			{
-				const FRotator TargetRotation = FMath::RInterpTo(OwnerHero->GetActorRotation(), TargetCharacter->GetActorRotation(), DeltaTime, 5.0f);
-				OwnerHero->SetActorRotation(TargetRotation);
+				if (!bTargetMoving)
+				{
+					const FRotator TargetRotation = FMath::RInterpTo(OwnerHero->GetActorRotation(), TargetCharacter->GetActorRotation(), DeltaTime, 5.0f);
+					OwnerHero->SetActorRotation(TargetRotation);
+				}
+
 				return;
 			}
 
@@ -112,23 +118,36 @@ void UHeroAIComponent::MoveToTarget(float DeltaTime)
 			if(bShouldTeleport)
 			{
 				OwnerHero->SetActorLocation(TargetLocation, false, nullptr, ETeleportType::TeleportPhysics);
+				MoveDirection = LastMoveDirection;
 				return;
 			}
 
-			const FVector MoveDirection = ToTarget.GetSafeNormal();
+			MoveDirection = ToTarget.GetSafeNormal();
+
+			const bool bStopOverCorrection = (LastMoveDirection | MoveDirection) <= TargetCharacter->HeroAIComponent->OverCorrectionThreshold;
+			if (bStopOverCorrection && bTargetMoving)
+			{
+				MoveDirection = LastMoveDirection;
+				return;
+			}
+
 			OwnerHero->AddMovementInput(MoveDirection, 1.0f);
 
+#if WITH_EDITOR
 			if (CVar_DebugAITargetLocations.GetValueOnGameThread() > 0)
 			{
 				DrawDebugLine(GetWorld(), TargetLocation, CurrentLocation, FColor::Green);
 				DrawDebugSphere(GetWorld(), TargetLocation, 5.0f, 12, FColor::Cyan, false, -1.0f, 1);
 				
+				FString DebugText = FString::Printf(TEXT("AI Input Direction: %s"), *MoveDirection.ToCompactString());
+				DrawDebugString(GetWorld(), TargetLocation + FVector(0.0f, 0.0f, 5.0f), DebugText, nullptr, FColor::Magenta, 0.f, true);
 			}
 
 			if (CVar_DebugAIAccpetanceRadius.GetValueOnGameThread() > 0)
 			{
-				DrawDebugSphere(GetWorld(), TargetLocation, AcceptanceRadius, 12, FColor::Magenta, false, -1.0f, 1);
+				DrawDebugSphere(GetWorld(), TargetLocation, TargetCharacter->HeroAIComponent->AcceptanceRadius, 12, FColor::Magenta, false, -1.0f, 1);
 			}
+#endif
 		}
 	}
 }
