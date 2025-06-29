@@ -10,6 +10,7 @@ UHeroMovementComponent::UHeroMovementComponent(const FObjectInitializer& ObjectI
 	bConstrainToPlane = false;
 	bOrientRotationToMovement = false;
 	bMaintainHorizontalGroundVelocity = false;
+	bRunPhysicsWithNoController = true;
 }
 
 void UHeroMovementComponent::SetCustomGravityDir(const FVector& Dir)

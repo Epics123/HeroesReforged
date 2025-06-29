@@ -16,4 +16,6 @@ class HEROESREFORGED_API AHeroAIController : public AAIController
 	
 public:
 	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) {};
+
+	virtual void OnPossess(APawn* InPawn) override;
 };

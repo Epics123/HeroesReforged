@@ -67,7 +67,11 @@ public:
 
 	void SetupTeam(class AController* Controller);
 
-	FVector GetPrevHeroVelocity() const { return PrevHeroVelocity; }
+	// Gets the current velocity of the hero we are trying to swap to
+	FVector GetSwappedHeroVelocity() const { return SwappedHeroVelocity; }
+
+	// Gets the current velocity of the hero we are trying to swap from
+	FVector GetTargetHeroVelocity() const { return TargetHeroVelocity; }
 
 	void UpdateHeroMaxSpeeds();
 
@@ -88,5 +92,10 @@ private:
 
 	// The previous ActiveHero
 	AHeroCharacter* PreviousHero = nullptr;
-	FVector PrevHeroVelocity;
+
+	// Velocity of the hero we are swapping from at the time of swapping
+	FVector TargetHeroVelocity;
+
+	// Velocity of the hero we are swapping to at the time of swapping
+	FVector SwappedHeroVelocity;
 };

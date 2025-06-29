@@ -275,11 +275,15 @@ void AHeroCharacter::PossessedBy(AController* NewController)
 	AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		// Possess previous hero with AI controller after we are done possessing the new active hero
-		if(!Cast<AHeroAIController>(NewController))
+		if(Cast<AHeroAIController>(NewController))
+		{
+			GetHeroMovementComponent()->Velocity = GameMode->HeroManager->GetSwappedHeroVelocity();
+		}
+		// Possess previous hero with AI controller and maintain the old character's velocity
+		else
 		{
 			GameMode->HeroManager->AIPossessPreviousHero();
-			GetHeroMovementComponent()->Velocity = GameMode->HeroManager->GetPrevHeroVelocity();
+			GetHeroMovementComponent()->Velocity = GameMode->HeroManager->GetTargetHeroVelocity();
 		}
 	}
 }
@@ -320,10 +324,6 @@ void AHeroCharacter::SwapHeroInternal(int32 Direction)
 	{
 		GameMode->HeroManager->RotateActiveHero(Direction);
 		GetWorld()->GetFirstPlayerController()->Possess(GameMode->HeroManager->ActiveHero);
-
-		AHeroCharacter* PrevHero = GameMode->HeroManager->GetPreviousHero();
-		PrevHero->GetHeroMovementComponent()->StopMovementImmediately();
-		PrevHero->GetHeroMovementComponent()->Velocity = FVector::ZeroVector;
 	}
 }
 

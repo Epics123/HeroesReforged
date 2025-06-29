@@ -56,7 +56,8 @@ void UHeroManager::SetActiveHero(int32 Index)
 	AHeroCharacter* DesiredHero = Heroes[Index];
 	if(DesiredHero != ActiveHero)
 	{
-		PrevHeroVelocity = ActiveHero->GetHeroMovementComponent()->Velocity;
+		TargetHeroVelocity = ActiveHero->GetHeroMovementComponent()->Velocity;
+		SwappedHeroVelocity = DesiredHero->GetHeroMovementComponent()->Velocity;
 
 		const FVector ActiveHeroLoc = ActiveHero->GetActorLocation();
 		const FRotator ActiveHeroRot = ActiveHero->GetActorRotation();
