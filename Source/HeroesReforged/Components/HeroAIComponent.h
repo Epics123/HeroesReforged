@@ -40,9 +40,29 @@ public:
 	UFUNCTION(BlueprintPure)
 	int32 GetTargetLocationIndexFromHero(AHeroCharacter* ActiveHero, AHeroCharacter* Hero);
 
-	void MoveToTarget(float DeltaTime);
+	/*
+	* Gets the direction between this AI and the target character. NOT normalized 
+	*/
+	UFUNCTION(BlueprintPure)
+	FVector GetMovementDirection();
 
-	bool IsTargetMoving(AHeroCharacter* TargetCharacter, float Tolerence = UE_KINDA_SMALL_NUMBER);
+	UFUNCTION(BlueprintPure)
+	AHeroCharacter* GetActiveTarget();
+
+	void MoveToTarget(float DeltaTime);
+	
+	UFUNCTION(BlueprintPure)
+	bool IsTargetMoving(AHeroCharacter* TargetCharacter, float Tolerence = 0.00001f);
+
+	/*
+	* Returns true if this AI is close enough to its target
+	*/
+	UFUNCTION(BlueprintPure)
+	bool IsCloseEnough() const { return bCloseEnough; }
+
+	void OnActiveHeroJumped();
+
+	void OnActiveHeroStopJumping();
 
 protected:
 	// Called when the game starts
@@ -84,4 +104,6 @@ private:
 	FVector MoveDirection = FVector::ZeroVector;
 
 	EHeroAIComponentState HeroAIState = EHeroAIComponentState::Active;
+
+	bool bCloseEnough;
 };

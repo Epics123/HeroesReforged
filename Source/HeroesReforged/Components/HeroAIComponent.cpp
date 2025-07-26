@@ -80,6 +80,37 @@ int32 UHeroAIComponent::GetTargetLocationIndexFromHero(AHeroCharacter* ActiveHer
 	return TargetLocationIndex;
 }
 
+FVector UHeroAIComponent::GetMovementDirection()
+{
+	FVector Direction = FVector::ZeroVector;
+
+	if(HeroManager)
+	{
+		AHeroCharacter* TargetCharacter = HeroManager->ActiveHero;
+		if (TargetCharacter && OwnerHero)
+		{
+			int32 LocationIndex = GetTargetLocationIndexFromHero(TargetCharacter, OwnerHero);
+
+			const FVector TargetLocation = TargetCharacter->HeroAIComponent->AITargetLocations[LocationIndex]->GetComponentLocation();
+			const FVector CurrentLocation = OwnerHero->GetActorLocation();
+
+			Direction = TargetLocation - CurrentLocation;
+		}
+	}
+
+	return Direction;
+}
+
+AHeroCharacter* UHeroAIComponent::GetActiveTarget()
+{
+	if(HeroManager)
+	{
+		return HeroManager->ActiveHero;
+	}
+
+	return nullptr;
+}
+
 void UHeroAIComponent::MoveToTarget(float DeltaTime)
 {
 	if(HeroManager)
@@ -90,14 +121,14 @@ void UHeroAIComponent::MoveToTarget(float DeltaTime)
 			const FVector LastMoveDirection = MoveDirection;
 
 			int32 LocationIndex = GetTargetLocationIndexFromHero(TargetCharacter, OwnerHero);
-			
+
 			const FVector TargetLocation = TargetCharacter->HeroAIComponent->AITargetLocations[LocationIndex]->GetComponentLocation();
 			const FVector CurrentLocation = OwnerHero->GetActorLocation();
 
 			const FVector ToTarget = TargetLocation - CurrentLocation;
 
+			bCloseEnough = ToTarget.SizeSquared() < FMath::Square(TargetCharacter->HeroAIComponent->AcceptanceRadius);
 			const bool bTargetMoving = IsTargetMoving(TargetCharacter);
-			const bool bCloseEnough = ToTarget.SizeSquared() < FMath::Square(TargetCharacter->HeroAIComponent->AcceptanceRadius);
 			const bool bCatchUp = ToTarget.SizeSquared() > FMath::Square(TargetCharacter->HeroAIComponent->CatchUpThreshold);
 			const bool bShouldTeleport = ToTarget.SizeSquared() > FMath::Square(TeleportThreshold) && !bCloseEnough;
 
@@ -160,6 +191,22 @@ bool UHeroAIComponent::IsTargetMoving(AHeroCharacter* TargetCharacter, float Tol
 	}
 
 	return !TargetCharacter->GetVelocity().IsNearlyZero();
+}
+
+void UHeroAIComponent::OnActiveHeroJumped()
+{
+	if(OwnerHero && HeroManager && OwnerHero != HeroManager->ActiveHero)
+	{
+		OwnerHero->Jump();
+	}
+}
+
+void UHeroAIComponent::OnActiveHeroStopJumping()
+{
+	if (OwnerHero && HeroManager && OwnerHero != HeroManager->ActiveHero)
+	{
+		OwnerHero->StopJumping();
+	}
 }
 
 // Called when the game starts

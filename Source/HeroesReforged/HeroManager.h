@@ -62,9 +62,6 @@ public:
 		return false;
 	}
 
-	UFUNCTION(BlueprintCallable)
-	void OnAcitveHeroJumped();
-
 	void SetupTeam(class AController* Controller);
 
 	// Gets the current velocity of the hero we are trying to swap to
@@ -75,8 +72,14 @@ public:
 
 	void UpdateHeroMaxSpeeds();
 
+	void AddMovementInput();
+
 protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void RegisterJumpBindings();
+
+	void UnregisterJumpBindings();
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Heroes")

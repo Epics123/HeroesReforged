@@ -22,6 +22,8 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogHeroCharacter, Error, All);
 
+UE_DISABLE_OPTIMIZATION
+
 // Sets default values
 AHeroCharacter::AHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer.SetDefaultSubobjectClass<UHeroMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -216,6 +218,12 @@ void AHeroCharacter::Move(const FInputActionValue& Value)
 			const FVector MoveDirection = ((CameraForward * MovementVector.Y) + (CameraRight * MovementVector.X)).GetSafeNormal();
 			AddMovementInput(MoveDirection, 1.0f);
 		}
+
+		AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameMode && GameMode->HeroManager->IsActiveHero(this))
+		{
+			GameMode->HeroManager->AddMovementInput();
+		}
 	}
 }
 
@@ -246,7 +254,18 @@ void AHeroCharacter::Jump()
 	AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode && GameMode->HeroManager->IsActiveHero(this))
 	{
-		GameMode->HeroManager->OnAcitveHeroJumped();
+		OnHeroJumped.Broadcast();
+	}
+}
+
+void AHeroCharacter::StopJumping()
+{
+	Super::StopJumping();
+
+	AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode && GameMode->HeroManager->IsActiveHero(this))
+	{
+		OnHeroStopJump.Broadcast();
 	}
 }
 

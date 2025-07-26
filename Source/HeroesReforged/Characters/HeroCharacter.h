@@ -15,6 +15,9 @@ class UNiagaraComponent;
 
 struct FInputActionValue;
 
+DECLARE_MULTICAST_DELEGATE(FOnHeroJumped);
+DECLARE_MULTICAST_DELEGATE(FOnHeroStopJump);
+
 UENUM()
 enum class EHeroType : uint8
 {
@@ -36,6 +39,9 @@ public:
 	UHeroMovementComponent* GetHeroMovementComponent() const;
 
 	UFUNCTION(BlueprintPure)
+	UHeroAIComponent* GetAIComponent() const { return HeroAIComponent; }
+
+	UFUNCTION(BlueprintPure)
 	EHeroType GetHeroType() const { return HeroType; }
 
 	UFUNCTION(BlueprintPure)
@@ -54,6 +60,8 @@ public:
 	float GetJumpballPitchDuringJump(float ApexProximity, float MinDownwardRotation, float MaxUpwardRotation);
 
 	virtual void Jump() override;
+
+	virtual void StopJumping() override;
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -101,6 +109,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = AI)
 	TObjectPtr<UHeroAIComponent> HeroAIComponent;
+
+	FOnHeroJumped OnHeroJumped;
+	FOnHeroStopJump OnHeroStopJump;
 
 private:
 	/** Camera boom positioning the camera behind the character */

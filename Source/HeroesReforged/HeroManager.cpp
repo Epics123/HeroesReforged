@@ -56,6 +56,8 @@ void UHeroManager::SetActiveHero(int32 Index)
 	AHeroCharacter* DesiredHero = Heroes[Index];
 	if(DesiredHero != ActiveHero)
 	{
+		UnregisterJumpBindings();
+
 		TargetHeroVelocity = ActiveHero->GetHeroMovementComponent()->Velocity;
 		SwappedHeroVelocity = DesiredHero->GetHeroMovementComponent()->Velocity;
 
@@ -76,6 +78,7 @@ void UHeroManager::SetActiveHero(int32 Index)
 		PreviousHero->SetAIComponentEnabled(true);
 
 		UpdateHeroMaxSpeeds();
+		RegisterJumpBindings();
 	}
 }
 
@@ -84,17 +87,6 @@ void UHeroManager::AIPossessPreviousHero()
 	if(PreviousHero && PreviousHero->AIController)
 	{
 		PreviousHero->AIController->Possess(PreviousHero);
-	}
-}
-
-void UHeroManager::OnAcitveHeroJumped()
-{
-	for (AHeroCharacter* Hero : Heroes)
-	{
-		if(Hero != ActiveHero)
-		{
-			Hero->Jump();
-		}
 	}
 }
 
@@ -139,6 +131,8 @@ void UHeroManager::SetupTeam(AController* Controller)
 			OnHeroTeamSetup.AddUObject(Hero->GetHeroMovementComponent(), &UHeroMovementComponent::CacheMovementDefaults);
 		}
 	}
+
+	RegisterJumpBindings();
 }
 
 void UHeroManager::UpdateHeroMaxSpeeds()
@@ -163,17 +157,44 @@ void UHeroManager::UpdateHeroMaxSpeeds()
 	}
 }
 
+void UHeroManager::AddMovementInput()
+{
+	for(AHeroCharacter* Hero : Heroes)
+	{
+		if(!IsActiveHero(Hero))
+		{
+			Hero->HeroAIComponent->MoveToTarget(GetWorld()->GetDeltaSeconds());
+		}
+	}
+}
+
 void UHeroManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Move hero AI characters
 	for(AHeroCharacter* Hero : Heroes)
 	{
 		UHeroAIComponent* AIComponent = Hero->HeroAIComponent;
-		if(AIComponent && AIComponent->IsAIEnabled())
+		if(AIComponent && AIComponent->IsAIEnabled() && !AIComponent->IsTargetMoving(ActiveHero))
 		{
 			AIComponent->MoveToTarget(DeltaTime);
 		}
 	}
+}
+
+void UHeroManager::RegisterJumpBindings()
+{
+	for (AHeroCharacter* Hero : Heroes)
+	{
+		if (!IsActiveHero(Hero))
+		{
+			ActiveHero->OnHeroJumped.AddUObject(Hero->GetAIComponent(), &UHeroAIComponent::OnActiveHeroJumped);
+			ActiveHero->OnHeroStopJump.AddUObject(Hero->GetAIComponent(), &UHeroAIComponent::OnActiveHeroStopJumping);
+		}
+	}
+}
+
+void UHeroManager::UnregisterJumpBindings()
+{
+	ActiveHero->OnHeroJumped.RemoveAll(ActiveHero);
 }
