@@ -59,6 +59,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetJumpballPitchDuringJump(float ApexProximity, float MinDownwardRotation, float MaxUpwardRotation);
 
+	UFUNCTION(BlueprintNativeEvent)
+	void StartSecondaryJumpAction();
+
 	virtual void Jump() override;
 
 	virtual void StopJumping() override;
@@ -78,6 +81,8 @@ protected:
 	void Look(const FInputActionValue& Value);
 
 	virtual void Landed(const FHitResult& Hit) override;
+
+	void CheckSecondaryJumpAction();
 
 	void SwapLeft();
 	void SwapRight();

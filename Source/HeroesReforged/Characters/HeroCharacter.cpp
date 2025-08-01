@@ -22,8 +22,6 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogHeroCharacter, Error, All);
 
-UE_DISABLE_OPTIMIZATION
-
 // Sets default values
 AHeroCharacter::AHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer.SetDefaultSubobjectClass<UHeroMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -139,6 +137,11 @@ float AHeroCharacter::GetJumpballPitchDuringJump(float ApexProximity, float MinD
 	}
 
 	return 0.0f;
+}
+
+void AHeroCharacter::StartSecondaryJumpAction_Implementation()
+{
+
 }
 
 void AHeroCharacter::PostInitializeComponents()
@@ -277,6 +280,14 @@ void AHeroCharacter::Landed(const FHitResult& Hit)
 	GetHeroMovementComponent()->ResetAirDeceleration();
 }
 
+void AHeroCharacter::CheckSecondaryJumpAction()
+{
+	if (GetHeroMovementComponent()->IsFalling())
+	{
+		StartSecondaryJumpAction();
+	}
+}
+
 void AHeroCharacter::SwapLeft()
 {
 	SwapHeroInternal(-1);
@@ -366,6 +377,7 @@ void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 			// Jumping
 			EnhancedInputComponent->BindAction(InputData->JumpAction, ETriggerEvent::Started, this, &AHeroCharacter::Jump);
 			EnhancedInputComponent->BindAction(InputData->JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+			EnhancedInputComponent->BindAction(InputData->JumpAction, ETriggerEvent::Started, this, &AHeroCharacter::CheckSecondaryJumpAction);
 
 			// Moving
 			EnhancedInputComponent->BindAction(InputData->MoveAction, ETriggerEvent::Triggered, this, &AHeroCharacter::Move);
