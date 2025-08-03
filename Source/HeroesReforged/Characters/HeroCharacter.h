@@ -48,6 +48,9 @@ public:
 	bool IsMoveInputBlocked() const;
 
 	UFUNCTION(BlueprintCallable)
+	void SetMoveInputLocked(bool bLocked);
+
+	UFUNCTION(BlueprintCallable)
 	void SetAIComponentEnabled(bool bEnable);
 
 	UFUNCTION(BlueprintCallable)
@@ -140,4 +143,6 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UPlayerInputData> InputData;
+
+	bool bMoveInputLocked = false;
 };

@@ -12,7 +12,7 @@ void UWorldToScreenWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 }
-UE_DISABLE_OPTIMIZATION
+
 void UWorldToScreenWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);

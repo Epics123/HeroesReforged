@@ -82,6 +82,11 @@ bool AHeroCharacter::IsMoveInputBlocked() const
 	return false; // TODO: Actually check if input is blocked
 }
 
+void AHeroCharacter::SetMoveInputLocked(bool bLocked)
+{
+	bMoveInputLocked = bLocked;
+}
+
 void AHeroCharacter::SetAIComponentEnabled(bool bEnable)
 {
 	if(!HeroAIComponent)
