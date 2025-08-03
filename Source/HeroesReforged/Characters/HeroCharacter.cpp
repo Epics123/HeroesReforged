@@ -5,6 +5,7 @@
 #include "../Components/HeroMovementComponent.h"
 #include "../Components/HeroCameraComponent.h"
 #include "../Components/HeroAIComponent.h"
+#include "../Components/HeroLevelComponent.h"
 #include "../Data/PlayerInputData.h"
 #include "../HeroesReforgedGameMode.h"
 #include "../HeroManager.h"
@@ -70,11 +71,23 @@ AHeroCharacter::AHeroCharacter(const FObjectInitializer& ObjectInitializer)
 		LeftAITarget = CreateDefaultSubobject<USceneComponent>(TEXT("LeftAITarget"));
 		LeftAITarget->SetupAttachment(RootComponent);
 	}
+
+	LevelComponent = CreateDefaultSubobject<UHeroLevelComponent>(TEXT("HeroLevelComponent"));
 }
 
 UHeroMovementComponent* AHeroCharacter::GetHeroMovementComponent() const
 {
 	return Cast<UHeroMovementComponent>(GetMovementComponent());
+}
+
+int AHeroCharacter::GetHeroLevel() const
+{
+	if(LevelComponent)
+	{
+		return LevelComponent->GetCurrentLevel();
+	}
+
+	return 0;
 }
 
 bool AHeroCharacter::IsMoveInputBlocked() const
@@ -184,6 +197,12 @@ void AHeroCharacter::BeginPlay()
 
 		}
 	}
+
+	if(LevelComponent)
+	{
+		LevelComponent->OnLevelUp.AddDynamic(this, &AHeroCharacter::OnLevelUp);
+		LevelComponent->OnLevelReset.AddDynamic(this, &AHeroCharacter::OnLevelReset);
+	}
 }
 
 void AHeroCharacter::Move(const FInputActionValue& Value)
@@ -243,7 +262,7 @@ void AHeroCharacter::MoveReleased()
 void AHeroCharacter::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	FVector2D LookAxisVector = Value.Get<FVector2D>() * LookSpeed;
 
 	if (Controller != nullptr)
 	{

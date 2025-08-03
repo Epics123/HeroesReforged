@@ -10,6 +10,7 @@ class USpringArmComponent;
 class UHeroCameraComponent;
 class UHeroMovementComponent;
 class UHeroAIComponent;
+class UHeroLevelComponent;
 class AHeroAIController;
 class UNiagaraComponent;
 
@@ -43,6 +44,15 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	EHeroType GetHeroType() const { return HeroType; }
+
+	UFUNCTION(BlueprintPure)
+	int GetHeroLevel() const;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnLevelUp();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnLevelReset();
 
 	UFUNCTION(BlueprintPure)
 	bool IsMoveInputBlocked() const;
@@ -117,6 +127,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = AI)
 	TObjectPtr<UHeroAIComponent> HeroAIComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Leveling)
+	TObjectPtr<UHeroLevelComponent> LevelComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float LookSpeed = 1.0f;
 
 	FOnHeroJumped OnHeroJumped;
 	FOnHeroStopJump OnHeroStopJump;
