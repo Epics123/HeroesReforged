@@ -7,8 +7,6 @@
 #include "HeroManager.h"
 #include "Characters/HeroCharacter.h"
 
-UE_DISABLE_OPTIMIZATION
-
 AHeroesReforgedGameMode::AHeroesReforgedGameMode(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {

@@ -96,7 +96,7 @@ void AHeroCharacter::SetAIComponentEnabled(bool bEnable)
 
 void AHeroCharacter::ShowJumpball()
 {
-	if (JumpballMesh && JumpballFX)
+	if (JumpballMesh && JumpballFX && !JumpballMesh->IsVisible())
 	{
 		GetMesh()->SetVisibility(false);
 
@@ -107,7 +107,7 @@ void AHeroCharacter::ShowJumpball()
 
 void AHeroCharacter::HideJumpball()
 {
-	if(JumpballMesh && JumpballFX)
+	if(JumpballMesh && JumpballFX && JumpballMesh->IsVisible())
 	{
 		GetMesh()->SetVisibility(true);
 
@@ -251,7 +251,6 @@ void AHeroCharacter::Look(const FInputActionValue& Value)
 void AHeroCharacter::Jump()
 {
 	GetHeroMovementComponent()->bNotifyApex = true;
-	ShowJumpball();
 	Super::Jump();
 
 	AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
