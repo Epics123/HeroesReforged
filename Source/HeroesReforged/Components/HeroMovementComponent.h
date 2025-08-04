@@ -123,6 +123,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Movement | Rotation")
 	float RotateToVelocityThreshold = 10.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Movement | Rotation")
+	bool bSkipRotateToVelocity = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Movement | Gravity")
 	float CustomGravityStrength = 50.0f;
 

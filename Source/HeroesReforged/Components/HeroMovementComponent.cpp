@@ -341,8 +341,6 @@ void UHeroMovementComponent::UpdateOwnerRotation(const FVector& SurfaceNormal, f
 	FQuat SmoothTargetOrientation = FQuat::Slerp(CharacterOwner->GetActorQuat(), TargetOrientation, DeltaTime * RotationSmoothingSpeed);
 	SmoothTargetOrientation.Normalize();
 
-	bool bSkipRotateToVelocity = false;
-
 	// Rotate towards velocity
 	const FVector TangentVelocity = Velocity - (Velocity | SurfaceNormal) * SurfaceNormal;
 	if (!TangentVelocity.IsNearlyZero(RotateToVelocityThreshold) && !bSkipRotateToVelocity)
@@ -357,13 +355,28 @@ void UHeroMovementComponent::UpdateOwnerRotation(const FVector& SurfaceNormal, f
 
 void UHeroMovementComponent::UpdateOwnerRotationFalling(float DeltaTime)
 {
-	FVector VelocityDir = Velocity.GetSafeNormal();
-	VelocityDir.Z = 0.0f;
+	if(!bSkipRotateToVelocity)
+	{
+		FVector VelocityDir = Velocity.GetSafeNormal();
+		VelocityDir.Z = 0.0f;
 
-	const FRotator TargetRotation = FRotator(0.0f, VelocityDir.Rotation().Yaw, 0.0f);
-	FRotator UpdatedRotation = FMath::RInterpTo(CharacterOwner->GetActorRotation(), TargetRotation, DeltaTime, AirRotationSmoothingSpeed);
+		const FRotator TargetRotation = FRotator(0.0f, VelocityDir.Rotation().Yaw, 0.0f);
+		FRotator UpdatedRotation = FMath::RInterpTo(CharacterOwner->GetActorRotation(), TargetRotation, DeltaTime, AirRotationSmoothingSpeed);
 
-	CharacterOwner->SetActorRotation(UpdatedRotation);
+		CharacterOwner->SetActorRotation(UpdatedRotation);
+	}
+	else
+	{
+		if (Acceleration.SizeSquared() < UE_KINDA_SMALL_NUMBER)
+		{
+			return;
+		}
+
+		const FRotator TargetRotation = Acceleration.GetSafeNormal().Rotation();
+		FRotator UpdatedRotation = FMath::RInterpTo(CharacterOwner->GetActorRotation(), TargetRotation, DeltaTime, RotateToVelocityCurve->GetFloatValue(Velocity.Size()));
+
+		CharacterOwner->SetActorRotation(UpdatedRotation);
+	}
 }
 
 void UHeroMovementComponent::CalculateTangentVelocity(const FVector& SurfaceNormal, float DeltaTime)
