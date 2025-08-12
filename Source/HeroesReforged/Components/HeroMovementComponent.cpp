@@ -146,7 +146,7 @@ void UHeroMovementComponent::PhysFalling(float DeltaTime, int32 Iterations)
 		return;
 	}
 
-	const FVector CustomGravityForce = CustomGravityDirection * CustomGravityStrength;
+	const FVector CustomGravityForce = CustomGravityDirection * CustomGravityStrength * GravityScale;
 	Velocity += CustomGravityForce * DeltaTime;
 
 	if (!GetLastInputVector().IsNearlyZero())
@@ -161,7 +161,7 @@ void UHeroMovementComponent::PhysFlying(float DeltaTime, int32 Iterations)
 {
 	Super::PhysFlying(DeltaTime, Iterations);
 
-	if (bFlightInputHeld && !bFlightExhausted)
+	if (bFlightInputHeld && bFlightAllowed && !bFlightExhausted)
 	{
 		const FVector FlightDir = FVector(GetLastInputVector().X, GetLastInputVector().Y, 1.0f).GetSafeNormal();
 		Velocity += (FlightDir * VerticalFlightSpeed) * DeltaTime;
@@ -367,7 +367,7 @@ void UHeroMovementComponent::UpdateOwnerRotationFalling(float DeltaTime)
 	}
 	else
 	{
-		if (Acceleration.SizeSquared() < UE_KINDA_SMALL_NUMBER)
+		if (Acceleration.SizeSquared() < UE_KINDA_SMALL_NUMBER || bHasOverrideFallingRotation)
 		{
 			return;
 		}

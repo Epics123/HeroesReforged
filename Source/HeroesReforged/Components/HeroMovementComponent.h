@@ -22,7 +22,11 @@ public:
 	FVector GetCustomGravityDir() const { return CustomGravityDirection; }
 	void SetCustomGravityDir(const FVector& Dir);
 
+	UFUNCTION(BlueprintPure)
 	const FVector GetCurrentSurfaceNormal() const { return CurrentNormal; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentSurfaceNormal(const FVector& Normal) { CurrentNormal = Normal; }
 
 	void ResetGravity();
 
@@ -126,6 +130,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Movement | Rotation")
 	bool bSkipRotateToVelocity = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Movement | Rotation")
+	bool bHasOverrideFallingRotation = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Movement | Gravity")
 	float CustomGravityStrength = 50.0f;
 
@@ -152,6 +159,8 @@ public:
 	bool bHasFlightReset = true;
 	UPROPERTY(BlueprintReadWrite, Category = "Custom Movement | Flying")
 	bool bFlightInputHeld = false;
+	UPROPERTY(BlueprintReadWrite, Category = "Custom Movement | Flying")
+	bool bFlightAllowed = false;
 
 	float DefaultMaxSpeed;
 	float DefaultGroundAcceleration;
