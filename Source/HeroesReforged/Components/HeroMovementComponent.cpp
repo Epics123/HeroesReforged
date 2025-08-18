@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HeroMovementComponent.h"
-
 #include "../Characters/HeroCharacter.h"
+
+#include "Components/CapsuleComponent.h"
 
 UHeroMovementComponent::UHeroMovementComponent(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -65,6 +66,25 @@ float UHeroMovementComponent::GetApexProximity(float ApexHeight, float JumpStart
 	return 0.0f;
 }
 
+void UHeroMovementComponent::ApplyJumpballCapsuleSize()
+{
+	UCapsuleComponent* Capsule = CharacterOwner->GetCapsuleComponent();
+	if(Capsule)
+	{
+		OldCapsuleHeight = Capsule->GetUnscaledCapsuleHalfHeight();
+		Capsule->SetCapsuleSize(Capsule->GetUnscaledCapsuleRadius(), CrouchedHalfHeight);
+	}
+}
+
+void UHeroMovementComponent::ResetCapsuleSize()
+{
+	UCapsuleComponent* Capsule = CharacterOwner->GetCapsuleComponent();
+	if (Capsule)
+	{
+		Capsule->SetCapsuleSize(Capsule->GetUnscaledCapsuleRadius(), OldCapsuleHeight);
+	}
+}
+
 void UHeroMovementComponent::CacheMovementDefaults()
 {
 	DefaultMaxSpeed = MaxWalkSpeed;
@@ -74,6 +94,8 @@ void UHeroMovementComponent::CacheMovementDefaults()
 void UHeroMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	OldCapsuleHeight = CharacterOwner->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 }
 
 void UHeroMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

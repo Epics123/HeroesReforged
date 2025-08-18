@@ -120,6 +120,8 @@ void AHeroCharacter::ShowJumpball()
 
 		JumpballFX->SetPaused(false);
 		JumpballMesh->SetVisibility(true, true);
+
+		GetHeroMovementComponent()->ApplyJumpballCapsuleSize();
 	}
 }
 
@@ -131,6 +133,8 @@ void AHeroCharacter::HideJumpball()
 
 		JumpballFX->SetPaused(true);
 		JumpballMesh->SetVisibility(false, true);
+
+		GetHeroMovementComponent()->ResetCapsuleSize();
 	}
 }
 

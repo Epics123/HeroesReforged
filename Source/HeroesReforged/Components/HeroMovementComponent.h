@@ -49,6 +49,12 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetApexProximity(float ApexHeight, float JumpStartHeight) const;
 
+	UFUNCTION(BlueprintCallable)
+	void ApplyJumpballCapsuleSize();
+
+	UFUNCTION(BlueprintCallable)
+	void ResetCapsuleSize();
+
 	void CacheMovementDefaults();
 
 protected:
@@ -180,4 +186,6 @@ private:
 
 	float SlopeFactor;
 	float SlopeAdjustmentSpeed;
+
+	float OldCapsuleHeight;
 };
