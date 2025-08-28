@@ -168,6 +168,11 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Custom Movement | Flying")
 	bool bFlightAllowed = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Movement | Rail Grinding")
+	float MaxSpeedGrinding = 4000.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom Movement | Rail Grinding")
+	float RailGrindingAcceleration = 1200.0f;
+
 	float DefaultMaxSpeed;
 	float DefaultGroundAcceleration;
 

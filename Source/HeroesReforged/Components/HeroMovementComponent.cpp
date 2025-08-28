@@ -72,7 +72,7 @@ void UHeroMovementComponent::ApplyJumpballCapsuleSize()
 	if(Capsule)
 	{
 		OldCapsuleHeight = Capsule->GetUnscaledCapsuleHalfHeight();
-		Capsule->SetCapsuleSize(Capsule->GetUnscaledCapsuleRadius(), CrouchedHalfHeight);
+		Capsule->SetCapsuleSize(Capsule->GetUnscaledCapsuleRadius(), GetCrouchedHalfHeight());
 	}
 }
 
@@ -519,6 +519,20 @@ float UHeroMovementComponent::VisualizeMovement() const
 		HeightOffset += OffsetPerElement;
 		FVector DebugLocation = TopOfCapsule + FVector(0.f, 0.f, HeightOffset);
 		FString DebugText = FString::Printf(TEXT("bIsJumping: %d Count: %d HoldTime: %.2f"), CharacterOwner->bPressedJump, CharacterOwner->JumpCurrentCount, CharacterOwner->JumpKeyHoldTime);
+		DrawDebugString(GetWorld(), DebugLocation, DebugText, nullptr, DebugColor, 0.f, true);
+	}
+
+	{
+		const FColor DebugColor = FColor::Green;
+		HeightOffset += OffsetPerElement;
+		FVector DebugLocation = TopOfCapsule + FVector(0.f, 0.f, HeightOffset);
+
+		FString FloorName = "None";
+		if(CurrentFloor.HitResult.GetActor())
+		{
+			FloorName = CurrentFloor.HitResult.GetActor()->GetName();
+		}
+		FString DebugText = FString::Printf(TEXT("CurrentFloor: %s"), *FloorName);
 		DrawDebugString(GetWorld(), DebugLocation, DebugText, nullptr, DebugColor, 0.f, true);
 	}
 #endif

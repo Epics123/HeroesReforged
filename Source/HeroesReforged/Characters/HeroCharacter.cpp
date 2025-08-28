@@ -10,6 +10,7 @@
 #include "../HeroesReforgedGameMode.h"
 #include "../HeroManager.h"
 #include "HeroAIController.h"
+#include "../LevelObjects/RailBase.h"
 
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
@@ -18,6 +19,7 @@
 #include "Engine/InputDelegateBinding.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
+#include "Components/SphereComponent.h"
 
 #include "Logging/LogMacros.h"
 
@@ -92,7 +94,7 @@ int AHeroCharacter::GetHeroLevel() const
 
 bool AHeroCharacter::IsMoveInputBlocked() const
 {
-	return false; // TODO: Actually check if input is blocked
+	return bMoveInputLocked;
 }
 
 void AHeroCharacter::SetMoveInputLocked(bool bLocked)
@@ -233,9 +235,21 @@ void AHeroCharacter::Move(const FInputActionValue& Value)
 			// get right vector 
 			const FVector RightDirection = (MovementComp->GetCurrentSurfaceNormal() ^ ForwardDirection).GetSafeNormal();
 
+			const bool bIgnoreRightInput = bOnRail;
+
+			if(bOnRail && CurrentRail)
+			{
+				RailLeanDirection = MovementVector.X;
+
+				if(CurrentRail->bOneWay)
+				{
+					MovementVector.Y = FMath::Clamp(MovementVector.Y, 0.0f, 1.0f);
+				}
+			}
+
 			//add movement 
 			AddMovementInput(ForwardDirection, MovementVector.Y);
-			AddMovementInput(RightDirection, MovementVector.X);
+			AddMovementInput(RightDirection, bIgnoreRightInput ? 0.0f : MovementVector.X);
 		}
 		else
 		{
@@ -260,7 +274,7 @@ void AHeroCharacter::Move(const FInputActionValue& Value)
 
 void AHeroCharacter::MoveReleased()
 {
-
+	RailLeanDirection = 0.0f;
 }
 
 void AHeroCharacter::Look(const FInputActionValue& Value)
@@ -299,6 +313,11 @@ void AHeroCharacter::StopJumping()
 	}
 }
 
+void AHeroCharacter::OnRailEnd_Implementation(ARailBase* Rail)
+{
+
+}
+
 void AHeroCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
@@ -323,6 +342,11 @@ void AHeroCharacter::SwapLeft()
 void AHeroCharacter::SwapRight()
 {
 	SwapHeroInternal(1);
+}
+
+void AHeroCharacter::SwapRail(const FInputActionValue& Value)
+{
+	OnSwapRail(Value.Get<float>());
 }
 
 void AHeroCharacter::PossessedBy(AController* NewController)
@@ -404,17 +428,21 @@ void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 			// Jumping
 			EnhancedInputComponent->BindAction(InputData->JumpAction, ETriggerEvent::Started, this, &AHeroCharacter::Jump);
 			EnhancedInputComponent->BindAction(InputData->JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+			EnhancedInputComponent->BindAction(InputData->JumpAction, ETriggerEvent::Canceled, this, &ACharacter::StopJumping);
 			EnhancedInputComponent->BindAction(InputData->JumpAction, ETriggerEvent::Started, this, &AHeroCharacter::CheckSecondaryJumpAction);
 
 			// Moving
 			EnhancedInputComponent->BindAction(InputData->MoveAction, ETriggerEvent::Triggered, this, &AHeroCharacter::Move);
 			EnhancedInputComponent->BindAction(InputData->MoveAction, ETriggerEvent::Completed, this, &AHeroCharacter::MoveReleased);
+			EnhancedInputComponent->BindAction(InputData->MoveAction, ETriggerEvent::Canceled, this, &AHeroCharacter::MoveReleased);
 
 			// Looking
 			EnhancedInputComponent->BindAction(InputData->LookAction, ETriggerEvent::Triggered, this, &AHeroCharacter::Look);
 
 			EnhancedInputComponent->BindAction(InputData->SwapLeftAction, ETriggerEvent::Triggered, this, &AHeroCharacter::SwapLeft);
 			EnhancedInputComponent->BindAction(InputData->SwapRightAction, ETriggerEvent::Triggered, this, &AHeroCharacter::SwapRight);
+
+			EnhancedInputComponent->BindAction(InputData->RailSwapAction, ETriggerEvent::Triggered, this, &AHeroCharacter::SwapRail);
 		}
 	}
 	else

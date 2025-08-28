@@ -7,6 +7,7 @@
 UHomingTargetComponent::UHomingTargetComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	bVisualizeComponent = true;
 }
 
 

@@ -13,6 +13,8 @@ class UHeroAIComponent;
 class UHeroLevelComponent;
 class AHeroAIController;
 class UNiagaraComponent;
+class USphereComponent;
+class ARailBase;
 
 struct FInputActionValue;
 
@@ -79,6 +81,12 @@ public:
 
 	virtual void StopJumping() override;
 
+	UFUNCTION(BlueprintNativeEvent)
+	void OnRailEnd(ARailBase* Rail);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnSwapRail(float Direction);
+
 protected:
 	virtual void PostInitializeComponents() override;
 
@@ -99,6 +107,8 @@ protected:
 
 	void SwapLeft();
 	void SwapRight();
+
+	void SwapRail(const FInputActionValue& Value);
 
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void PawnClientRestart() override;
@@ -133,6 +143,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float LookSpeed = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = RailGrinding)
+	bool bOnRail = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = RailGrinding)
+	float RailLeanDirection = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = RailGrinding)
+	TObjectPtr<ARailBase> CurrentRail;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = RailGrinding)
+	TObjectPtr<ARailBase> JumpRail;
 
 	FOnHeroJumped OnHeroJumped;
 	FOnHeroStopJump OnHeroStopJump;

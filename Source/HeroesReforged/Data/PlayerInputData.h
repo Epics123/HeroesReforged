@@ -41,4 +41,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Actions)
 	UInputAction* SwapRightAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Actions)
+	UInputAction* RailSwapAction;
 };
