@@ -53,7 +53,7 @@ AHeroCharacter::AHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	JumpballMesh->SetupAttachment(JumpballPivot);
 
 	JumpballFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("JumpballFX"));
-	JumpballFX->SetupAttachment(JumpballMesh);
+	JumpballFX->SetupAttachment(JumpballMesh, "Mesh");
 
 	JumpballFX->SetPaused(true);
 	JumpballFX->SetVisibility(false);
