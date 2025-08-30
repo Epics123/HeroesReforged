@@ -57,6 +57,8 @@ public:
 
 	void CacheMovementDefaults();
 
+	FORCEINLINE virtual bool CanEverCrouch() const { return true; }
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

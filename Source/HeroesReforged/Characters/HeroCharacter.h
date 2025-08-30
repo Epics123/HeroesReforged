@@ -87,6 +87,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSwapRail(float Direction);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCrouched();
+
+	virtual bool CanCrouch() const override;
+
+	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="CanCrouch", ScriptName="CanCrouch"))
+	bool K2_CanCrouch() const;
+
 protected:
 	virtual void PostInitializeComponents() override;
 
@@ -104,6 +112,9 @@ protected:
 	virtual void Landed(const FHitResult& Hit) override;
 
 	void CheckSecondaryJumpAction();
+
+	virtual void Crouch(bool bClientSimulation = false) override;
+	virtual void UnCrouch(bool bClientSimulation = false) override;
 
 	void SwapLeft();
 	void SwapRight();

@@ -293,6 +293,12 @@ void AHeroCharacter::Look(const FInputActionValue& Value)
 void AHeroCharacter::Jump()
 {
 	GetHeroMovementComponent()->bNotifyApex = true;
+
+	if(GetHeroMovementComponent()->IsCrouching())
+	{
+		UnCrouch(false);
+	}
+
 	Super::Jump();
 
 	AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -318,6 +324,11 @@ void AHeroCharacter::OnRailEnd_Implementation(ARailBase* Rail)
 
 }
 
+bool AHeroCharacter::CanCrouch() const
+{
+	return Super::CanCrouch() && K2_CanCrouch() && !bOnRail;
+}
+
 void AHeroCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
@@ -332,6 +343,18 @@ void AHeroCharacter::CheckSecondaryJumpAction()
 	{
 		StartSecondaryJumpAction();
 	}
+}
+
+void AHeroCharacter::Crouch(bool bClientSimulation /*= false*/)
+{
+	Super::Crouch(bClientSimulation);
+
+	OnCrouched();
+}
+
+void AHeroCharacter::UnCrouch(bool bClientSimulation /*= false*/)
+{
+	Super::UnCrouch(bClientSimulation);
 }
 
 void AHeroCharacter::SwapLeft()
@@ -443,6 +466,10 @@ void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 			EnhancedInputComponent->BindAction(InputData->SwapRightAction, ETriggerEvent::Triggered, this, &AHeroCharacter::SwapRight);
 
 			EnhancedInputComponent->BindAction(InputData->RailSwapAction, ETriggerEvent::Triggered, this, &AHeroCharacter::SwapRail);
+
+			EnhancedInputComponent->BindAction(InputData->CrouchAction, ETriggerEvent::Triggered, this, &AHeroCharacter::Crouch, false);
+			EnhancedInputComponent->BindAction(InputData->CrouchAction, ETriggerEvent::Completed, this, &AHeroCharacter::UnCrouch, false);
+			EnhancedInputComponent->BindAction(InputData->CrouchAction, ETriggerEvent::Canceled, this, &AHeroCharacter::UnCrouch, false);
 		}
 	}
 	else

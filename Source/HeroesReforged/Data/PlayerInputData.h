@@ -44,4 +44,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Actions)
 	UInputAction* RailSwapAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Actions)
+	UInputAction* CrouchAction;
 };
