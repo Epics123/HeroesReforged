@@ -95,6 +95,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="CanCrouch", ScriptName="CanCrouch"))
 	bool K2_CanCrouch() const;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartRoll();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void EndRoll();
+
 protected:
 	virtual void PostInitializeComponents() override;
 

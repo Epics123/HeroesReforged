@@ -467,7 +467,7 @@ void AHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 			EnhancedInputComponent->BindAction(InputData->RailSwapAction, ETriggerEvent::Triggered, this, &AHeroCharacter::SwapRail);
 
-			EnhancedInputComponent->BindAction(InputData->CrouchAction, ETriggerEvent::Triggered, this, &AHeroCharacter::Crouch, false);
+			EnhancedInputComponent->BindAction(InputData->CrouchAction, ETriggerEvent::Started, this, &AHeroCharacter::Crouch, false);
 			EnhancedInputComponent->BindAction(InputData->CrouchAction, ETriggerEvent::Completed, this, &AHeroCharacter::UnCrouch, false);
 			EnhancedInputComponent->BindAction(InputData->CrouchAction, ETriggerEvent::Canceled, this, &AHeroCharacter::UnCrouch, false);
 		}

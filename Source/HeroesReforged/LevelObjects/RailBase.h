@@ -38,7 +38,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DetachFromRail();
 
-	UFUNCTION(BlueprintGetter)
+	UFUNCTION(BlueprintPure)
 	float GetDirectionOnRail();
 
 	UFUNCTION(BlueprintGetter)
