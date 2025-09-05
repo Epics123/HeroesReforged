@@ -52,8 +52,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ApplyJumpballCapsuleSize();
 
+	/** Resets the capsule size to its pre-modified size. Optionally forces the default capsule size */
 	UFUNCTION(BlueprintCallable)
-	void ResetCapsuleSize();
+	void ResetCapsuleSize(bool bForceDefault = false);
 
 	void CacheMovementDefaults();
 
@@ -177,6 +178,7 @@ public:
 
 	float DefaultMaxSpeed;
 	float DefaultGroundAcceleration;
+	float DefaultCapsuleHeight;
 
 	float CurrentFlightTime;
 

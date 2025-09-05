@@ -296,6 +296,8 @@ void AHeroCharacter::Jump()
 
 	if(GetHeroMovementComponent()->IsCrouching())
 	{
+		bRolling = false;
+		bForceStopRoll = true;
 		UnCrouch(false);
 	}
 
@@ -349,12 +351,29 @@ void AHeroCharacter::Crouch(bool bClientSimulation /*= false*/)
 {
 	Super::Crouch(bClientSimulation);
 
-	OnCrouched();
+	UHeroMovementComponent* MovementComponent = GetHeroMovementComponent();
+	if(MovementComponent)
+	{
+		bRolling = (FMath::Abs(MovementComponent->Velocity.Length()) > UE_KINDA_SMALL_NUMBER) && MovementComponent->bWantsToCrouch;
+		bCrouchHeld = MovementComponent->bWantsToCrouch;
+	}
+	else
+	{
+		bCrouchHeld = false;
+	}
 }
 
 void AHeroCharacter::UnCrouch(bool bClientSimulation /*= false*/)
 {
-	Super::UnCrouch(bClientSimulation);
+	bCrouchHeld = false;
+
+	UHeroMovementComponent* MovementComponent = GetHeroMovementComponent();
+	bRolling = FMath::Abs(MovementComponent->Velocity.Length()) > UE_KINDA_SMALL_NUMBER && !bForceStopRoll;
+	if(!bRolling)
+	{
+		Super::UnCrouch(bClientSimulation);
+		bForceStopRoll = false;
+	}
 }
 
 void AHeroCharacter::SwapLeft()

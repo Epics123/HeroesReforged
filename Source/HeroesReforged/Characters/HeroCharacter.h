@@ -87,9 +87,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSwapRail(float Direction);
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnCrouched();
-
 	virtual bool CanCrouch() const override;
 
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="CanCrouch", ScriptName="CanCrouch"))
@@ -172,6 +169,15 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = RailGrinding)
 	TObjectPtr<ARailBase> JumpRail;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rolling)
+	bool bRolling = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rolling)
+	bool bCrouchHeld = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rolling)
+	bool bForceStopRoll = false;
 
 	FOnHeroJumped OnHeroJumped;
 	FOnHeroStopJump OnHeroStopJump;

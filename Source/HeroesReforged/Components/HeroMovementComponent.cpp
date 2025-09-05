@@ -76,12 +76,12 @@ void UHeroMovementComponent::ApplyJumpballCapsuleSize()
 	}
 }
 
-void UHeroMovementComponent::ResetCapsuleSize()
+void UHeroMovementComponent::ResetCapsuleSize(bool bForceDefault)
 {
 	UCapsuleComponent* Capsule = CharacterOwner->GetCapsuleComponent();
 	if (Capsule)
 	{
-		Capsule->SetCapsuleSize(Capsule->GetUnscaledCapsuleRadius(), OldCapsuleHeight);
+		Capsule->SetCapsuleSize(Capsule->GetUnscaledCapsuleRadius(), bForceDefault ? DefaultCapsuleHeight : OldCapsuleHeight);
 	}
 }
 
@@ -96,6 +96,7 @@ void UHeroMovementComponent::BeginPlay()
 	Super::BeginPlay();
 
 	OldCapsuleHeight = CharacterOwner->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+	DefaultCapsuleHeight = OldCapsuleHeight;
 }
 
 void UHeroMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
