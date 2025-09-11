@@ -261,7 +261,15 @@ void AHeroCharacter::Move(const FInputActionValue& Value)
 			CameraRight = (CameraRight - (CameraRight | SurfaceNormal) * SurfaceNormal).GetSafeNormal();
 
 			const FVector MoveDirection = ((CameraForward * MovementVector.Y) + (CameraRight * MovementVector.X)).GetSafeNormal();
-			AddMovementInput(MoveDirection, 1.0f);
+
+			if(bSpindashHeld && !MovementComp->IsFalling())
+			{
+				AddControllerYawInput(MovementVector.X);
+			}
+			else
+			{
+				AddMovementInput(MoveDirection, 1.0f);
+			}
 		}
 
 		AHeroesReforgedGameMode* GameMode = Cast<AHeroesReforgedGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -334,7 +342,11 @@ bool AHeroCharacter::CanCrouch() const
 void AHeroCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
-	HideJumpball();
+
+	if(!bSpindashHeld)
+	{
+		HideJumpball();
+	}
 	GetHeroMovementComponent()->bNotifyApex = false;
 	GetHeroMovementComponent()->ResetAirDeceleration();
 }
@@ -369,7 +381,7 @@ void AHeroCharacter::UnCrouch(bool bClientSimulation /*= false*/)
 
 	UHeroMovementComponent* MovementComponent = GetHeroMovementComponent();
 	bRolling = FMath::Abs(MovementComponent->Velocity.Length()) > UE_KINDA_SMALL_NUMBER && !bForceStopRoll;
-	if(!bRolling)
+	if(!bRolling && !bSpindashHeld)
 	{
 		Super::UnCrouch(bClientSimulation);
 		bForceStopRoll = false;

@@ -512,6 +512,13 @@ float UHeroMovementComponent::VisualizeMovement() const
 			DebugColor = FColor::Emerald;
 			DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + CustomGravityDirection * GroundTraceDistance, DebugColor);
 		}
+
+		DebugColor = FColor::Orange;
+		HeightOffset += OffsetPerElement;
+		DebugLocation = TopOfCapsule + FVector(0.f, 0.f, HeightOffset);
+		const bool bRolling = Cast<AHeroCharacter>(CharacterOwner)->bRolling;
+		DebugText = FString::Printf(TEXT("Rolling: %s"), bRolling ? TEXT("True") : TEXT("False"));
+		DrawDebugString(GetWorld(), DebugLocation, DebugText, nullptr, DebugColor, 0.f, true);
 	}
 
 	// Jump

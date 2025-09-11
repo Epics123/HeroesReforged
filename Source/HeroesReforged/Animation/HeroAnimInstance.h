@@ -21,7 +21,7 @@ public:
 	void CalculateSpeedAndDirection();
 
 	UFUNCTION(BlueprintCallable)
-	void TryGetHero();
+	class AHeroCharacter* TryGetHero();
 
 protected:
 	void NativeBeginPlay() override;

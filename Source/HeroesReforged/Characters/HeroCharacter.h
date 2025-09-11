@@ -179,6 +179,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rolling)
 	bool bForceStopRoll = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rolling)
+	bool bSpindashHeld = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rolling)
+	bool bCanSpindash = true;
+
 	FOnHeroJumped OnHeroJumped;
 	FOnHeroStopJump OnHeroStopJump;
 

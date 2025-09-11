@@ -44,11 +44,14 @@ void UHeroAnimInstance::CalculateSpeedAndDirection()
 	}
 }
 
-void UHeroAnimInstance::TryGetHero()
+AHeroCharacter* UHeroAnimInstance::TryGetHero()
 {
 	APawn* PawnOwner = TryGetPawnOwner();
 	if (PawnOwner)
 	{
 		Hero = Cast<AHeroCharacter>(PawnOwner);
+		return Hero;
 	}
+
+	return nullptr;
 }
