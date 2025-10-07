@@ -14,6 +14,7 @@ class UHeroLevelComponent;
 class AHeroAIController;
 class UNiagaraComponent;
 class USphereComponent;
+class UGameplayCameraComponent;
 class ARailBase;
 
 struct FInputActionValue;
@@ -198,6 +199,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> CameraPivot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UGameplayCameraComponent> GameplayCamera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> JumpballPivot;

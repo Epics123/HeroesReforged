@@ -13,6 +13,7 @@
 #include "../LevelObjects/RailBase.h"
 
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/GameplayCameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
@@ -40,11 +41,11 @@ AHeroCharacter::AHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	CameraPivot->SetRelativeLocation(FVector(0.0f, 0.0f, 160.0f));
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(CameraPivot);
-	CameraBoom->TargetArmLength = 500.0f; // The camera follows at this distance behind the character
-	CameraBoom->SocketOffset = FVector(0.0f, 0.0f, -100);
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	//CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	//CameraBoom->SetupAttachment(CameraPivot);
+	//CameraBoom->TargetArmLength = 500.0f; // The camera follows at this distance behind the character
+	//CameraBoom->SocketOffset = FVector(0.0f, 0.0f, -100);
+	//CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	JumpballPivot = CreateDefaultSubobject<USceneComponent>(TEXT("JumpballPivot"));
 	JumpballPivot->SetupAttachment(RootComponent);
@@ -60,9 +61,12 @@ AHeroCharacter::AHeroCharacter(const FObjectInitializer& ObjectInitializer)
 	JumpballMesh->SetVisibility(false, true);
 
 	// Create a follow camera
-	FollowCamera = CreateDefaultSubobject<UHeroCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	//FollowCamera = CreateDefaultSubobject<UHeroCameraComponent>(TEXT("FollowCamera"));
+	//FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	//FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	GameplayCamera = CreateDefaultSubobject<UGameplayCameraComponent>(TEXT("GameplayCamera"));
+	GameplayCamera->SetupAttachment(RootComponent);
 
 	HeroAIComponent = CreateDefaultSubobject<UHeroAIComponent>(TEXT("HeroAIComponent"));
 
@@ -288,14 +292,14 @@ void AHeroCharacter::MoveReleased()
 void AHeroCharacter::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>() * LookSpeed;
+	//FVector2D LookAxisVector = Value.Get<FVector2D>() * LookSpeed;
 
-	if (Controller != nullptr)
-	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
-	}
+	//if (Controller != nullptr)
+	//{
+	//	// add yaw and pitch input to controller
+	//	AddControllerYawInput(LookAxisVector.X);
+	//	AddControllerPitchInput(LookAxisVector.Y);
+	//}
 }
 
 void AHeroCharacter::Jump()
@@ -466,7 +470,6 @@ void AHeroCharacter::SwapHeroInternal(int32 Direction)
 void AHeroCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
