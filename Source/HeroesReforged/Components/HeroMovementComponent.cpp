@@ -172,10 +172,7 @@ void UHeroMovementComponent::PhysFalling(float DeltaTime, int32 Iterations)
 	const FVector CustomGravityForce = CustomGravityDirection * CustomGravityStrength * GravityScale;
 	Velocity += CustomGravityForce * DeltaTime;
 
-	if (!GetLastInputVector().IsNearlyZero())
-	{
-		UpdateOwnerRotationFalling(DeltaTime);
-	}
+	UpdateOwnerRotationFalling(DeltaTime);
 
 	Super::PhysFalling(DeltaTime, Iterations);
 }
@@ -217,6 +214,9 @@ void UHeroMovementComponent::PhysFlying(float DeltaTime, int32 Iterations)
 void UHeroMovementComponent::StartFalling(int32 Iterations, float RemainingTime, float TimeTick, const FVector& Delta, const FVector& SubLoc)
 {
 	ResetGravity();
+	SetCurrentSurfaceNormal(FVector(0.0f, 0.0f, 1.0f));
+
+	bSkipRotateToVelocity = true;
 
 	Super::StartFalling(Iterations, RemainingTime, TimeTick, Delta, SubLoc);
 }
@@ -378,27 +378,83 @@ void UHeroMovementComponent::UpdateOwnerRotation(const FVector& SurfaceNormal, f
 
 void UHeroMovementComponent::UpdateOwnerRotationFalling(float DeltaTime)
 {
-	if(!bSkipRotateToVelocity)
+	OrientUpright(DeltaTime);
+
+	if(bSkipRotateToVelocity)
 	{
-		FVector VelocityDir = Velocity.GetSafeNormal();
-		VelocityDir.Z = 0.0f;
+		// Rotate towards acceleration
+		if (Acceleration.SizeSquared() >= UE_KINDA_SMALL_NUMBER && !bHasOverrideFallingRotation)
+		{
+			const FRotator TargetRotation = Acceleration.GetSafeNormal().Rotation();
+			FRotator UpdatedRotation = FMath::RInterpTo(CharacterOwner->GetActorRotation(), TargetRotation, DeltaTime, RotateToVelocityCurve->GetFloatValue(Velocity.Size()));
 
-		const FRotator TargetRotation = FRotator(0.0f, VelocityDir.Rotation().Yaw, 0.0f);
-		FRotator UpdatedRotation = FMath::RInterpTo(CharacterOwner->GetActorRotation(), TargetRotation, DeltaTime, AirRotationSmoothingSpeed);
-
-		CharacterOwner->SetActorRotation(UpdatedRotation);
+			CharacterOwner->SetActorRotation(UpdatedRotation);
+		}
 	}
 	else
 	{
-		if (Acceleration.SizeSquared() < UE_KINDA_SMALL_NUMBER || bHasOverrideFallingRotation)
-		{
-			return;
-		}
+		// Rotate towards velocity
+		FVector VelocityDir = Velocity.GetSafeNormal();
 
-		const FRotator TargetRotation = Acceleration.GetSafeNormal().Rotation();
+		const FRotator TargetRotation = FRotator(0.0f, VelocityDir.Rotation().Yaw, 0.0f);
 		FRotator UpdatedRotation = FMath::RInterpTo(CharacterOwner->GetActorRotation(), TargetRotation, DeltaTime, RotateToVelocityCurve->GetFloatValue(Velocity.Size()));
 
 		CharacterOwner->SetActorRotation(UpdatedRotation);
+	}
+}
+
+void UHeroMovementComponent::OrientUpright(float DeltaTime)
+{
+	// Use parallel transport to maintain forward direction when orienting upright from an arbitrary surface
+	// See https://en.wikipedia.org/wiki/Parallel_transport and https://www.youtube.com/watch?v=MRU2D6sLpU0
+
+	const FVector CurrentWorldUp = -CustomGravityDirection;
+	const FVector CharUp = CharacterOwner->GetActorUpVector().GetSafeNormal();
+	const FVector CharFwd = CharacterOwner->GetActorForwardVector().GetSafeNormal();
+
+	FVector FromUp = CharUp.GetSafeNormal();
+	FVector ToUp = CurrentWorldUp.GetSafeNormal();
+
+	FQuat SwingOrientation = GetSwingOrientation(FromUp, ToUp);
+
+	FVector PlanarHeading = FVector::VectorPlaneProject(CharFwd, CharUp);
+	if (!PlanarHeading.Normalize())
+	{
+		PlanarHeading = FVector::VectorPlaneProject(CharacterOwner->GetActorRightVector(), CharUp).GetSafeNormal();
+	}
+
+	const FVector TransportHeading = SwingOrientation * PlanarHeading;
+	FVector WorldPlanarHeading = FVector::VectorPlaneProject(TransportHeading, CurrentWorldUp);
+	if (!WorldPlanarHeading.Normalize())
+	{
+		WorldPlanarHeading = CharacterOwner->GetActorForwardVector();
+	}
+
+	const FRotator TargetRot = FRotationMatrix::MakeFromXZ(WorldPlanarHeading, CurrentWorldUp).Rotator();
+	const FRotator CurrentRot = CharacterOwner->GetActorRotation();
+	CharacterOwner->SetActorRotation(FMath::RInterpTo(CharacterOwner->GetActorRotation(), TargetRot, DeltaTime, 10.0f));
+}
+
+FQuat UHeroMovementComponent::GetSwingOrientation(const FVector& FromUp, const FVector& ToUp) const
+{
+	const FVector CharFwd = CharacterOwner->GetActorForwardVector().GetSafeNormal();
+	const float SwingDir = FromUp | ToUp;
+
+	if (SwingDir >= 0.99f)
+	{
+		return FQuat::Identity;
+	}
+	else if (SwingDir <= -0.99f)
+	{
+		const FVector OrthoAxis = FVector::CrossProduct(FromUp, CharFwd).GetSafeNormal();
+		return FQuat(OrthoAxis, PI);
+	}
+	else
+	{
+		const FVector RotationAxis = FVector::CrossProduct(FromUp, ToUp).GetSafeNormal();
+		const float s = FMath::Sqrt((1 + SwingDir) * 2.0f);
+		const float Invs = 1.0f / s;
+		return FQuat(RotationAxis * Invs, s * 0.5f);
 	}
 }
 
@@ -465,6 +521,16 @@ float UHeroMovementComponent::VisualizeMovement() const
 			1.f, DebugColor, false, -1.f, (uint8)'\000', 1.f);
 
 		FString DebugText = FString::Printf(TEXT("Acceleration Vector: %s, Max Acceleration: %2f"), *Acceleration.ToCompactString(), CurrentMaxAccel);
+		DrawDebugString(GetWorld(), DebugLocation, DebugText, nullptr, DebugColor, 0.f, true);
+	}
+
+	// Rotation
+	{
+		const FColor DebugColor = FColor::Purple;
+		HeightOffset += OffsetPerElement;
+		const FVector DebugLocation = TopOfCapsule + FVector(0.f, 0.f, HeightOffset);
+
+		FString DebugText = FString::Printf(TEXT("Rotation: %s"), *CharacterOwner->GetActorRotation().ToCompactString());
 		DrawDebugString(GetWorld(), DebugLocation, DebugText, nullptr, DebugColor, 0.f, true);
 	}
 

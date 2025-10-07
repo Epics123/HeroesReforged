@@ -89,6 +89,8 @@ protected:
 private:
 	void UpdateOwnerRotation(const FVector& SurfaceNormal, float DeltaTime);
 	void UpdateOwnerRotationFalling(float DeltaTime);
+	void OrientUpright(float DeltaTime);
+	FQuat GetSwingOrientation(const FVector& FromUp, const FVector& ToUp) const;
 	void CalculateTangentVelocity(const FVector& SurfaceNormal, float DeltaTime);
 	
 public:
