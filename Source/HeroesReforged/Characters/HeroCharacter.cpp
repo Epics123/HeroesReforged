@@ -118,29 +118,39 @@ void AHeroCharacter::SetAIComponentEnabled(bool bEnable)
 	HeroAIComponent->SetAIComponentState(AIState);
 }
 
-void AHeroCharacter::ShowJumpball()
+void AHeroCharacter::ShowJumpball(bool bAdjustCapsuleSize)
 {
 	if (JumpballMesh && JumpballFX && !JumpballMesh->IsVisible())
 	{
-		GetMesh()->SetVisibility(false);
-
-		JumpballFX->SetPaused(false);
-		JumpballMesh->SetVisibility(true, true);
-
-		GetHeroMovementComponent()->ApplyJumpballCapsuleSize();
+		ToggleJumpball(true, bAdjustCapsuleSize);
 	}
 }
 
-void AHeroCharacter::HideJumpball()
+void AHeroCharacter::HideJumpball(bool bAdjustCapsuleSize)
 {
-	if(JumpballMesh && JumpballFX && JumpballMesh->IsVisible())
+	if (JumpballMesh && JumpballFX && JumpballMesh->IsVisible())
 	{
-		GetMesh()->SetVisibility(true);
+		ToggleJumpball(false, bAdjustCapsuleSize);
+	}
+}
 
-		JumpballFX->SetPaused(true);
-		JumpballMesh->SetVisibility(false, true);
+void AHeroCharacter::ToggleJumpball(bool bShow, bool bAdjustCapsule)
+{
+	GetMesh()->SetVisibility(!bShow);
 
-		GetHeroMovementComponent()->ResetCapsuleSize();
+	JumpballFX->SetPaused(!bShow);
+	JumpballMesh->SetVisibility(bShow, true);
+
+	if(bAdjustCapsule)
+	{
+		if(bShow)
+		{
+			GetHeroMovementComponent()->ApplyJumpballCapsuleSize();
+		}
+		else
+		{
+			GetHeroMovementComponent()->ResetCapsuleSize();
+		}
 	}
 }
 
@@ -343,6 +353,17 @@ bool AHeroCharacter::CanCrouch() const
 	return Super::CanCrouch() && K2_CanCrouch() && !bOnRail;
 }
 
+void AHeroCharacter::ForceStopRoll()
+{
+	if(bRolling)
+	{
+		EndRoll();
+		bRolling = false;
+
+		GetHeroMovementComponent()->ResetCapsuleSize(true);
+	}
+}
+
 void AHeroCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
@@ -365,13 +386,17 @@ void AHeroCharacter::CheckSecondaryJumpAction()
 
 void AHeroCharacter::Crouch(bool bClientSimulation /*= false*/)
 {
-	Super::Crouch(bClientSimulation);
-
 	UHeroMovementComponent* MovementComponent = GetHeroMovementComponent();
 	if(MovementComponent)
 	{
-		bRolling = (FMath::Abs(MovementComponent->Velocity.Length()) > UE_KINDA_SMALL_NUMBER) && MovementComponent->bWantsToCrouch;
+		if (FMath::Abs(MovementComponent->Velocity.Length()) < UE_KINDA_SMALL_NUMBER)
+		{
+			Super::Crouch(bClientSimulation);
+		}
+
 		bCrouchHeld = MovementComponent->bWantsToCrouch;
+
+		OnCrouchPressed();
 	}
 	else
 	{
@@ -384,11 +409,9 @@ void AHeroCharacter::UnCrouch(bool bClientSimulation /*= false*/)
 	bCrouchHeld = false;
 
 	UHeroMovementComponent* MovementComponent = GetHeroMovementComponent();
-	bRolling = FMath::Abs(MovementComponent->Velocity.Length()) > UE_KINDA_SMALL_NUMBER && !bForceStopRoll;
-	if(!bRolling && !bSpindashHeld)
+	if((FMath::Abs(MovementComponent->Velocity.Length()) < UE_KINDA_SMALL_NUMBER))
 	{
 		Super::UnCrouch(bClientSimulation);
-		bForceStopRoll = false;
 	}
 }
 

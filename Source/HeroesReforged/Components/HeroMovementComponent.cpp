@@ -73,6 +73,23 @@ void UHeroMovementComponent::ApplyJumpballCapsuleSize()
 	{
 		OldCapsuleHeight = Capsule->GetUnscaledCapsuleHalfHeight();
 		Capsule->SetCapsuleSize(Capsule->GetUnscaledCapsuleRadius(), GetCrouchedHalfHeight());
+
+		// Change collision size to crouching dimensions
+		const float ComponentScale = CharacterOwner->GetCapsuleComponent()->GetShapeScale();
+		const float OldUnscaledHalfHeight = CharacterOwner->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+		const float OldUnscaledRadius = CharacterOwner->GetCapsuleComponent()->GetUnscaledCapsuleRadius();
+		// Height is not allowed to be smaller than radius.
+		const float ClampedCrouchedHalfHeight = FMath::Max3(0.f, OldUnscaledRadius, CrouchedHalfHeight);
+		CharacterOwner->GetCapsuleComponent()->SetCapsuleSize(OldUnscaledRadius, ClampedCrouchedHalfHeight);
+		float HalfHeightAdjust = (OldUnscaledHalfHeight - ClampedCrouchedHalfHeight);
+		float ScaledHalfHeightAdjust = HalfHeightAdjust * ComponentScale;
+
+		const float MeshAdjust = ScaledHalfHeightAdjust;
+		ACharacter* DefaultCharacter = CharacterOwner->GetClass()->GetDefaultObject<ACharacter>();
+		HalfHeightAdjust = (DefaultCharacter->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() - ClampedCrouchedHalfHeight);
+		ScaledHalfHeightAdjust = HalfHeightAdjust * ComponentScale;
+
+		CharacterOwner->OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
 	}
 }
 
@@ -82,6 +99,15 @@ void UHeroMovementComponent::ResetCapsuleSize(bool bForceDefault)
 	if (Capsule)
 	{
 		Capsule->SetCapsuleSize(Capsule->GetUnscaledCapsuleRadius(), bForceDefault ? DefaultCapsuleHeight : OldCapsuleHeight);
+
+		ACharacter* DefaultCharacter = CharacterOwner->GetClass()->GetDefaultObject<ACharacter>();
+
+		const float ComponentScale = CharacterOwner->GetCapsuleComponent()->GetShapeScale();
+		const float OldUnscaledHalfHeight = CharacterOwner->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+		const float HalfHeightAdjust = DefaultCharacter->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() - OldUnscaledHalfHeight;
+		const float ScaledHalfHeightAdjust = HalfHeightAdjust * ComponentScale;
+
+		CharacterOwner->OnEndCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
 	}
 }
 
@@ -89,6 +115,27 @@ void UHeroMovementComponent::CacheMovementDefaults()
 {
 	DefaultMaxSpeed = MaxWalkSpeed;
 	DefaultGroundAcceleration = MaxAcceleration;
+}
+
+void UHeroMovementComponent::GetJumpballCapsuleAdjustHeight(float& OutAdjustHeight, float& OutScaledAdjustHeight)
+{
+	// Change collision size to crouching dimensions
+	const float ComponentScale = CharacterOwner->GetCapsuleComponent()->GetShapeScale();
+	const float OldUnscaledHalfHeight = CharacterOwner->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+	const float OldUnscaledRadius = CharacterOwner->GetCapsuleComponent()->GetUnscaledCapsuleRadius();
+	// Height is not allowed to be smaller than radius.
+	const float ClampedCrouchedHalfHeight = FMath::Max3(0.f, OldUnscaledRadius, CrouchedHalfHeight);
+	CharacterOwner->GetCapsuleComponent()->SetCapsuleSize(OldUnscaledRadius, ClampedCrouchedHalfHeight);
+	float HalfHeightAdjust = (OldUnscaledHalfHeight - ClampedCrouchedHalfHeight);
+	float ScaledHalfHeightAdjust = HalfHeightAdjust * ComponentScale;
+
+	const float MeshAdjust = ScaledHalfHeightAdjust;
+	ACharacter* DefaultCharacter = CharacterOwner->GetClass()->GetDefaultObject<ACharacter>();
+	HalfHeightAdjust = (DefaultCharacter->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() - ClampedCrouchedHalfHeight);
+	ScaledHalfHeightAdjust = HalfHeightAdjust * ComponentScale;
+
+	OutAdjustHeight = HalfHeightAdjust;
+	OutScaledAdjustHeight = ScaledHalfHeightAdjust;
 }
 
 void UHeroMovementComponent::BeginPlay()

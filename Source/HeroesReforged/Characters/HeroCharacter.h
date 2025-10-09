@@ -67,10 +67,10 @@ public:
 	void SetAIComponentEnabled(bool bEnable);
 
 	UFUNCTION(BlueprintCallable)
-	void ShowJumpball();
+	void ShowJumpball(bool bAdjustCapsuleSize = true);
 
 	UFUNCTION(BlueprintCallable)
-	void HideJumpball();
+	void HideJumpball(bool bAdjustCapsuleSize = true);
 
 	UFUNCTION(BlueprintPure)
 	float GetJumpballPitchDuringJump(float ApexProximity, float MinDownwardRotation, float MaxUpwardRotation);
@@ -94,10 +94,16 @@ public:
 	bool K2_CanCrouch() const;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void StartRoll();
+	void OnCrouchPressed();
 
 	UFUNCTION(BlueprintImplementableEvent)
+	void StartRoll();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void EndRoll();
+
+	UFUNCTION(BlueprintCallable)
+	void ForceStopRoll();
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -137,6 +143,8 @@ public:
 
 private:
 	void SwapHeroInternal(int32 Direction);
+
+	void ToggleJumpball(bool bShow, bool bAdjustCapsule);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

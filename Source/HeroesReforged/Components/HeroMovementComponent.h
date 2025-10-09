@@ -60,6 +60,8 @@ public:
 
 	FORCEINLINE virtual bool CanEverCrouch() const { return true; }
 
+	void GetJumpballCapsuleAdjustHeight(float& OutAdjustHeight, float& OutScaledAdjustHeight);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
